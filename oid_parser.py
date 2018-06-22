@@ -7,10 +7,14 @@ import time
 SNMP_COMMAND = 'snmpwalk -Os -c %s -v %s %s %s' # community, version, URL, OID
 
 # OID TYPES #
-OID_INDEX = 'ifIndex'
-OID_DESCR = 'ifDescr'
-OID_STATSIN = 'ipIfStatsInOctets'
-OID_STATSOUT = 'ipIfStatsOutOctets'
+TYPE_INDEX = 'ifIndex'
+TYPE_DESCR = 'ifDescr'
+TYPE_STATSIN = 'ipIfStatsInOctets'
+TYPE_STATSOUT = 'ipIfStatsOutOctets'
+
+# VALID PORTCHANNEL TYPES #
+PORTCHANNEL10 = 'Port-channel10'
+PORTCHANNEL11 = 'Port-channel11'
 
 
 class OIDParser():
@@ -23,13 +27,18 @@ class OIDParser():
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
-        # EXAMPLE #
-        descrOIDS = self.getOIDs(OID_DESCR)
-        statsINOIDS = self.getOIDs(OID_STATSIN) # Disable temp
-        #statsOUTOIDS = self.getOIDs(OID_STATSOUT)
+        self.descrList = []
+        self.octetList = []
 
-        self.parseOIDs(descrOIDS)
-        self.parseOIDs(statsINOIDS)
+        ### Get OID strings ###
+        descrOIDS = self.getOIDs(TYPE_DESCR)
+        statsINOIDS = self.getOIDs(TYPE_STATSIN) # Disable temp
+        #statsOUTOIDS = self.getOIDs(TYPE_STATSOUT)
+
+        ### Convert OID strings into OID LISTS ###
+        self.parseOIDs(descrOIDS, TYPE_DESCR)
+        self.parseOIDs(statsINOIDS, TYPE_STATSIN)
+        #self.parseOIDs(statsOUTOIDS, TYPE_STATSOUT)
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -42,32 +51,71 @@ class OIDParser():
         return RawOIDOutput
 
 
-    def parseOIDs(self, oids):    # Parse ALL of the different types of oid lists ( Called AFTER getOIDs, parses string )
+    def parseOIDs(self, oids, type):    # Parse ALL of the different types of oid lists ( Called AFTER getOIDs, parses string )
 
         # Remove newlines and special characters, appends each line to a list
         oids_list = oids.split("\\n")
 
-        for newline in oids_list:    # Iterate through the raw oid list
+        for single_oid in oids_list: # Iterate through the raw oid list
 
-            if " = " not in newline:    # If the string ( = ) WITH SPACES, is not in newline, SKIP
+            if " = " not in single_oid: # If the string ( = ) WITH SPACES, is not in the TEXT line, SKIP
                 continue
 
-            stream_3 = newline.split(".")  # Split newline into 3 parts, OID description, port_channel, VLAN
-
-            try:
-                vlanTag = stream_3[2]  # Extract VLAN tag []
-                print(vlanTag)
-            except:
-                print ("Error: " + str(stream_3))
+            self.oidTypeSelector(type, single_oid) # Selects which parser to move onto next
 
 
-    def parseDescrOIDS(self):    # Parses description OID type
+
+    def oidTypeSelector(self, type, single_oid):
+        if type == TYPE_DESCR:
+            self.parseDescrOIDS(single_oid)
+        elif type == TYPE_STATSIN or type == TYPE_STATSOUT:
+            self.parseOctetOIDS(type, single_oid)
+        else:
+            return # Invalid type! SKIP
+
+
+
+    # Parses line of an individual device OID for Description VLAN
+    def parseDescrOIDS(self, single_oid):    # Parses description OID type
+
+        temptDescrList = [] # Define a list to put our VLAN, port-channel and INDEX
+
+        if PORTCHANNEL10 not in single_oid and PORTCHANNEL11 not in single_oid: # If BOTH of these values are NOT in single_oid, SKIP
+            return
+
+        stream_3 = single_oid.split(".")  # Split newline into 3 RAW parts, OID description, port_channel, VLAN
+
+        if len(stream_3) <= 2: # If list contains less than 3 items, SKIP
+            print ("Warning: stream_3 did not contain 3 items in this OID, SKIPPING (Ignore this.)")
+            return
+
+        #### PARSE OUT ALL OF THE NECCESSARY VALUES HERE ####
+        vlanTag = stream_3[2]  # Extract VLAN tag [] FINISHED WITH THIS
+
+        # Parse our OID INDEX ID HERE
+        rawPortchannelVLAN = stream_3[1] # Extract INDEX and Portchannel
+        rawIndexPortchannel = rawPortchannelVLAN.split(" = ") # Portchannel and INDEX spliced apart
+        oidIndex = rawIndexPortchannel[0] # OID INDEX, FINISHED WITH THIS
+
+
+        # Parse out portchannel HERE
+        rawPortchannel = rawIndexPortchannel[1] # Extract Portchannel line
+        oidPortchanTEMP = rawPortchannel.split(": ") # Splice apart useless junk and Portchannel
+        oidPortchannel = oidPortchanTEMP[1] # Portchannel, FINISHED WITH THIS
+
+        print (oidPortchannel)
+        print (oidIndex)
+
+        # Append to global descrList
+        #return OIDLIST ########
+
+
+
+    # Parses line of individual device for OID octets ( Argument should specify wether octet is IN or OUT )
+    def parseOctetOIDS(self, type, single_oid):    # Parses IN or OUT octet OID type
+        octet_list = [] # ( Includes IN OCTET, OUT OCTET, TIMESTAMP, and INDEX VALUE )
+
+
+    # Return if index values the same
+    def compareOIDIndex(self, oid_ind_00, oid_ind_01):
         pass
-        return OIDLIST
-
-
-    # Argument should specify wether octet is IN or OUT
-    def parseOctetOIDS(self, type):    # Parses IN or OUT octet OID type
-        pass
-        # We will put a time stamp with the octets
-        return OIDLIST
