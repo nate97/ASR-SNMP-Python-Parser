@@ -27,8 +27,8 @@ class OIDParser():
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
-        self.descrList = []
-        self.octetList = []
+        self.descrDict = {}
+        self.octetList = {}
 
         ### Get OID strings ###
         descrOIDS = self.getOIDs(TYPE_DESCR)
@@ -39,6 +39,10 @@ class OIDParser():
         self.parseOIDs(descrOIDS, TYPE_DESCR)
         self.parseOIDs(statsINOIDS, TYPE_STATSIN)
         #self.parseOIDs(statsOUTOIDS, TYPE_STATSOUT)
+
+
+        ###### TEMP ######
+        print (self.descrDict)
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -78,19 +82,18 @@ class OIDParser():
     # Parses line of an individual device OID for Description VLAN
     def parseDescrOIDS(self, single_oid):    # Parses description OID type
 
-        temptDescrList = [] # Define a list to put our VLAN, port-channel and INDEX
-
+        # If this fails, skip process
         if PORTCHANNEL10 not in single_oid and PORTCHANNEL11 not in single_oid: # If BOTH of these values are NOT in single_oid, SKIP
             return
 
         stream_3 = single_oid.split(".")  # Split newline into 3 RAW parts, OID description, port_channel, VLAN
 
+        # If this fails, skip process
         if len(stream_3) <= 2: # If list contains less than 3 items, SKIP
-            print ("Warning: stream_3 did not contain 3 items in this OID, SKIPPING (Ignore this.)")
+            print ("Warning: stream_3 did not contain 3 items in this OID, SKIPPING (Ignore this.) " + str(stream_3))
             return
 
         #### PARSE OUT ALL OF THE NECCESSARY VALUES HERE ####
-        vlanTag = stream_3[2]  # Extract VLAN tag [] FINISHED WITH THIS
 
         # Parse our OID INDEX ID HERE
         rawPortchannelVLAN = stream_3[1] # Extract INDEX and Portchannel
@@ -103,12 +106,12 @@ class OIDParser():
         oidPortchanTEMP = rawPortchannel.split(": ") # Splice apart useless junk and Portchannel
         oidPortchannel = oidPortchanTEMP[1] # Portchannel, FINISHED WITH THIS
 
-        print (oidPortchannel)
-        print (oidIndex)
+        # Parse out VLAN tag HERE
+        oidVlanTag = stream_3[2]  # Extract VLAN tag [] FINISHED WITH THIS
 
-        # Append to global descrList
-        #return OIDLIST ########
-
+        #### Append all of our data to our local list HERE ####
+        # Append our key ( OID INDEX ), and values ( contained in a list ) to the global descrDict dictionary
+        self.descrDict[oidIndex] = (oidPortchannel, oidVlanTag) # Append key and list  to global descrDict
 
 
     # Parses line of individual device for OID octets ( Argument should specify wether octet is IN or OUT )
