@@ -4,6 +4,8 @@ import os
 
 import yaml
 
+from oid_parser import OIDParser
+
 
 ### GLOBALS ###
 
@@ -13,40 +15,18 @@ CREDENTIALS_FILE = 'credentials.yaml' # File contains all credentials of machine
 # Heading keys #
 ASR_CREDS_KEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
 
-# OTHER #
-SNMP_COMMAND = 'snmpwalk -Os -c %s -v %s %s %s' # community, version, URL, OID
 
 
-
-class ASRParser():
+class ASRDataExtractor(OIDParser):
 
     def __init__(self):
-        # Define our class global credentials
+
+        # Load OID parser
+        OIDParser.__init__(self)
+
         self.getCredentials()
-        self.getOID('ifIndex')
 
-
-
-    def OIDManager(self):
-        # We will process and keep track of all OID data HERE
-
-        # EXAMPLE #
-        self.getOID('ifIndex')
-
-
-
-    # Retrive a specific type of OID(s)
-    def getOID(self, OIDType):
-        # Process our predefined global command and put our variables inside of it
-        combinedCommand = SNMP_COMMAND % (self.SNMPCommunity, self.SNMPVersion, self.SNMPUrl, OIDType)
-
-        # RawOIDOutput contains all information retrived from the SNMPwalk bash command
-        RawOIDOutput = self.externalProcess(combinedCommand)
-
-        print (RawOIDOutput)
-
-        def parseOIDS(self, OIDS):
-            pass
+        self.OIDManager() # In class OIDParser
 
 
 
@@ -87,6 +67,6 @@ class ASRParser():
 
 
 
-ASRParser()
+ASRDataExtractor()
 
 

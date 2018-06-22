@@ -105,3 +105,6 @@ venv.bak/
 
 # Custom credential file
 credentials.yaml
+
+# PyCharm files
+.idea/
