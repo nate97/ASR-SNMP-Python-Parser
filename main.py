@@ -26,7 +26,7 @@ class ASRDataExtractor(OIDParser):
 
         self.getCredentials()
 
-        self.OIDManager() # In class OIDParser
+        self.OIDManager() # Located in class OIDParser
 
 
 
@@ -66,7 +66,8 @@ class ASRDataExtractor(OIDParser):
         return pythonOutput
 
 
-    # Generates a time stamp
+
+    # Generates a time stamp in number of seconds from EPOCH time (Jan,1,1970)
     def createTimestamp(self):
         timestamp = time.time()
         return timestamp

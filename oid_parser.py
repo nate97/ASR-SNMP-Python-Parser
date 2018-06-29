@@ -1,5 +1,6 @@
 import os
 import time
+import csv
 
 ### GLOBALS ###
 
@@ -16,12 +17,19 @@ TYPE_STATSOUT = 'ipIfStatsOutOctets'
 PORTCHANNEL10 = 'Port-channel10'
 PORTCHANNEL11 = 'Port-channel11'
 
+# PHRASES TO APPEND TO DATA ( For readability ) #
+INDEXPHRASE = ' INDEX'
+PORTCHANPHRASE = ' PORTC'
+VLANPHRASE = ' VLAN'
+INPHRASE = ' IN'
+OUTPHRASE = ' OUT'
+TIMEPHRASE = ' TIMESTAMP'
 
 class OIDParser():
 
     def __init__(self):
         pass
-        
+
 
     # KEEP OID LISTS IN HERE, [NOT] GLOBAL
     def OIDManager(self):
@@ -39,6 +47,12 @@ class OIDParser():
         # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
         self.octetDict = {}
 
+        # Do the first poll, Later we should have a task that does this periodically and appends the data everytime to the customerDict, needs more functions still
+        self.pollASR()
+
+
+    # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
+    def pollASR(self):
         ### Get OID strings ###
         descrOIDS = self.getOIDs(TYPE_DESCR)
         statsINOIDS = self.getOIDs(TYPE_STATSIN) # Disable temp
@@ -56,12 +70,41 @@ class OIDParser():
         #print (self.descrDict)
         #print (self.octetDict)
 
-        self.combOctetsDescr()
+        # Combine all of our SNMP data from ONE polling session
+        self.combOctetsDescr() # Each time we poll the ASR for SNMP data will be called a " session ", we will take the data from each session and append it to global customerDict
+
+        ## temp experiment ##
 
 
-        for x in self.customerDict:
-            y = self.customerDict.get(x)
-            print (y[0][1])
+    def exportAsrSNMPData(self):
+        #### !!! CSV EXPORTER !!! ####
+        with open('Customer_data.csv', 'w') as f:
+            w = csv.writer(f)
+
+            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE]
+            w.writerow(header_dict)
+
+            for x in self.customerDict.values():
+
+                csv_list = []
+
+                index = x[0][0]
+                portc = x[0][1]
+                vlan = x[0][2]
+
+                inOct = x[1][0]
+                outOct = x[1][1]
+                timeStamp = x[1][2]
+
+                csv_list.append(index)
+                csv_list.append(portc)
+                csv_list.append(vlan)
+
+                csv_list.append(inOct)
+                csv_list.append(outOct)
+                csv_list.append(timeStamp)
+
+                w.writerow(csv_list)
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -117,17 +160,18 @@ class OIDParser():
         rawIndexPortchannel = rawPortchannelVLAN.split(" = ") # Portchannel and INDEX spliced apart
         oidIndex = rawIndexPortchannel[0] # OID INDEX, FINISHED WITH THIS
 
-
-        # Parse out portchannel HERE
+        # Parse out portchannel HERE #
         rawPortchannel = rawIndexPortchannel[1] # Extract Portchannel line
         oidPortchanTEMP = rawPortchannel.split(": ") # Splice apart useless junk and Portchannel
         oidPortchannel = oidPortchanTEMP[1] # Portchannel, FINISHED WITH THIS
 
-        # Parse out VLAN tag HERE
+        # Parse out VLAN tag HERE #
         oidVlanTag = stream_3[2]  # Extract VLAN tag [] FINISHED WITH THIS
 
         ### Combine the data we want into a list ###
         descrList = []
+
+        descrList.append(oidIndex) # THIS IS JUST FOR US TO BE ABLE TO SEE THE INDEX WHEN EXTRACTED FROM DICTIONARY, NOT VERY IMPORTANT
         descrList.append(oidPortchannel)
         descrList.append(oidVlanTag)
 
@@ -153,10 +197,10 @@ class OIDParser():
 
         # Choose which dictionary to append octet to
         if type == TYPE_STATSIN:
-            octet = octet_data + ' IN'
+            octet = octet_data # ACTUAL DATA
             self.octetInDict[oid_index] = (octet)
         elif type == TYPE_STATSOUT:
-            octet = octet_data + ' OUT'
+            octet = octet_data # ACTUAL DATA
             self.octetOutDict[oid_index] = (octet)
 
 
@@ -170,7 +214,7 @@ class OIDParser():
             single_oid.append(self.octetOutDict.get(oidIndex))
 
             # Special case, append time stamp, doesn't need to be precise, but it is useful to have this
-            single_oid.append(str(self.createTimestamp()) + ' TIMESTAMP') # Time stamp is seconds from EPOCH
+            single_oid.append(str(self.createTimestamp())) # Time stamp is seconds from EPOCH
 
             self.octetDict[oidIndex] = (single_oid)
 

@@ -16,3 +16,9 @@ if that should be in this application directly.
 
 
 May need seperate functions to deal with exported yaml files
+
+
+
+Have application import curated list of other customer data so that
+we can identify who's usage data goes to what customer, will need to be 
+capable of being persistent and updatable.
