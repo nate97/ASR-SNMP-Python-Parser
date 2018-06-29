@@ -66,6 +66,11 @@ class ASRDataExtractor(OIDParser):
         return pythonOutput
 
 
+    # Generates a time stamp
+    def createTimestamp(self):
+        timestamp = time.time()
+        return timestamp
+
 
 ASRDataExtractor()
 

@@ -36,7 +36,6 @@ class OIDParser():
         # Key is SNMP index value
         self.octetInDict = {}
         self.octetOutDict = {}
-
         # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
         self.octetDict = {}
 
@@ -54,9 +53,15 @@ class OIDParser():
         self.CombINOUTOcts()
 
         ###### TEMP ######
-        print (self.descrDict)
-        print (self.octetDict)
+        #print (self.descrDict)
+        #print (self.octetDict)
 
+        self.combOctetsDescr()
+
+
+        for x in self.customerDict:
+            y = self.customerDict.get(x)
+            print (y[0][1])
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -121,9 +126,14 @@ class OIDParser():
         # Parse out VLAN tag HERE
         oidVlanTag = stream_3[2]  # Extract VLAN tag [] FINISHED WITH THIS
 
+        ### Combine the data we want into a list ###
+        descrList = []
+        descrList.append(oidPortchannel)
+        descrList.append(oidVlanTag)
+
         #### Append all of our data to our local list HERE ####
         # Append our key ( OID INDEX ), and values ( contained in a list ) to the global descrDict dictionary
-        self.descrDict[oidIndex] = (oidPortchannel, oidVlanTag) # Append key and list  to global descrDict
+        self.descrDict[oidIndex] = (descrList) # Append key and list  to global descrDict
 
 
     # Parses line of individual device for OID octets ( Argument should specify wether octet are IN or OUT )
@@ -153,26 +163,27 @@ class OIDParser():
     def CombINOUTOcts(self):
         combinedOcts = []
 
-
-
         for oidIndex in self.octetInDict:
             single_oid = []
 
             single_oid.append(self.octetInDict.get(oidIndex))
             single_oid.append(self.octetOutDict.get(oidIndex))
 
+            # Special case, append time stamp, doesn't need to be precise, but it is useful to have this
+            single_oid.append(str(self.createTimestamp()) + ' TIMESTAMP') # Time stamp is seconds from EPOCH
+
             self.octetDict[oidIndex] = (single_oid)
 
 
 
+    def combOctetsDescr(self):
+        for octetIndex in self.octetDict:
+            for descrIndex in self.descrDict:
+
+                if octetIndex == descrIndex:
+
+                    self.customerDict[octetIndex] = (self.descrDict.get(octetIndex), self.octetDict.get(octetIndex))
+
+        print (self.customerDict)
 
 
-
-
-
-
-
-    # This is done last as a seperate process combining the octets and descr
-    # Return if index values the same
-    def compareOIDIndex(self, oid_ind_00, oid_ind_01):
-        pass
