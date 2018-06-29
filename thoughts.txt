@@ -1,0 +1,18 @@
+After we have the main application combining the exported SNMP variables and combined into
+a dictionary, I'll need to work on managing how I will go about keeping records of the 
+customer's data usage, a solution could be having multiple lists inside of the customer
+dictonary.
+
+Data usage also needs time stamps in them.
+
+The layout of each individual statistic of data usage will be in a list, it will contain:
+octetIn, octetOut, timestamp;
+There may be up to two weeks worth of these lists in the customer dictionary for any given customer, so I will need to
+work on how I'm going to go about managing all of this data, and how it's going to be exported, as well as work out a way
+to manually add data to the exported yamls if need be.
+
+Application will also need to be capable of importing yaml files? I'm going to need to think about this, I'm not sure
+if that should be in this application directly.
+
+
+May need seperate functions to deal with exported yaml files

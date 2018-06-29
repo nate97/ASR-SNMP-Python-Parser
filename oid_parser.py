@@ -27,22 +27,36 @@ class OIDParser():
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
+        # Dictionary that contains customer data with VLAN and data usage
+        self.customerDict = {} # This will inevitably be the dictionary where we export the data to either a YAML file or YAML files, for individual customers
+
+        # Stores descr data from ASR, includes VLANs
         self.descrDict = {}
-        self.octetList = {}
+
+        # Key is SNMP index value
+        self.octetInDict = {}
+        self.octetOutDict = {}
+
+        # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
+        self.octetDict = {}
 
         ### Get OID strings ###
         descrOIDS = self.getOIDs(TYPE_DESCR)
         statsINOIDS = self.getOIDs(TYPE_STATSIN) # Disable temp
-        #statsOUTOIDS = self.getOIDs(TYPE_STATSOUT)
+        statsOUTOIDS = self.getOIDs(TYPE_STATSOUT)
 
         ### Convert OID strings into OID LISTS ###
         self.parseOIDs(descrOIDS, TYPE_DESCR)
         self.parseOIDs(statsINOIDS, TYPE_STATSIN)
-        #self.parseOIDs(statsOUTOIDS, TYPE_STATSOUT)
+        self.parseOIDs(statsOUTOIDS, TYPE_STATSOUT)
 
+        ### COMBINED OID OCTETS ###
+        self.CombINOUTOcts()
 
         ###### TEMP ######
         print (self.descrDict)
+        print (self.octetDict)
+
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -68,7 +82,6 @@ class OIDParser():
             self.oidTypeSelector(type, single_oid) # Selects which parser to move onto next
 
 
-
     def oidTypeSelector(self, type, single_oid):
         if type == TYPE_DESCR:
             self.parseDescrOIDS(single_oid)
@@ -76,7 +89,6 @@ class OIDParser():
             self.parseOctetOIDS(type, single_oid)
         else:
             return # Invalid type! SKIP
-
 
 
     # Parses line of an individual device OID for Description VLAN
@@ -90,7 +102,7 @@ class OIDParser():
 
         # If this fails, skip process
         if len(stream_3) <= 2: # If list contains less than 3 items, SKIP
-            print ("Warning: stream_3 did not contain 3 items in this OID, SKIPPING (Ignore this.) " + str(stream_3))
+            #print ("Warning: stream_3 did not contain 3 items in this OID, SKIPPING (Ignore this.) " + str(stream_3))
             return
 
         #### PARSE OUT ALL OF THE NECCESSARY VALUES HERE ####
@@ -114,11 +126,53 @@ class OIDParser():
         self.descrDict[oidIndex] = (oidPortchannel, oidVlanTag) # Append key and list  to global descrDict
 
 
-    # Parses line of individual device for OID octets ( Argument should specify wether octet is IN or OUT )
+    # Parses line of individual device for OID octets ( Argument should specify wether octet are IN or OUT )
     def parseOctetOIDS(self, type, single_oid):    # Parses IN or OUT octet OID type
-        octet_list = [] # ( Includes IN OCTET, OUT OCTET, TIMESTAMP, and INDEX VALUE )
+        oid = single_oid.split(".")
+
+        # Get rid of OID if it's for IPV6
+        if oid[1] == "ipv6":
+            return
+
+        oid_index_octet = oid[2].split(" = ")
+        oid_index = oid_index_octet[0]
+
+        octet_data = oid_index_octet[1]
+        octet_split_bwith = octet_data.split(": ")
+        octet_data = octet_split_bwith[1]
+
+        # Choose which dictionary to append octet to
+        if type == TYPE_STATSIN:
+            octet = octet_data + ' IN'
+            self.octetInDict[oid_index] = (octet)
+        elif type == TYPE_STATSOUT:
+            octet = octet_data + ' OUT'
+            self.octetOutDict[oid_index] = (octet)
 
 
+    def CombINOUTOcts(self):
+        combinedOcts = []
+
+
+
+        for oidIndex in self.octetInDict:
+            single_oid = []
+
+            single_oid.append(self.octetInDict.get(oidIndex))
+            single_oid.append(self.octetOutDict.get(oidIndex))
+
+            self.octetDict[oidIndex] = (single_oid)
+
+
+
+
+
+
+
+
+
+
+    # This is done last as a seperate process combining the octets and descr
     # Return if index values the same
     def compareOIDIndex(self, oid_ind_00, oid_ind_01):
         pass
