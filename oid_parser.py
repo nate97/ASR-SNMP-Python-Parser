@@ -2,6 +2,9 @@ import os
 import time
 import csv
 
+from csv_manager import CSVManager
+
+
 ### GLOBALS ###
 
 # COMMANDS #
@@ -17,7 +20,7 @@ TYPE_STATSOUT = 'ipIfStatsOutOctets'
 PORTCHANNEL10 = 'Port-channel10'
 PORTCHANNEL11 = 'Port-channel11'
 
-# PHRASES TO APPEND TO DATA ( For readability ) #
+# PHRASES TO APPEND TO DATA ( For readability ) # # MOVE THIS TO CSV MANAGER #
 INDEXPHRASE = ' INDEX'
 PORTCHANPHRASE = ' PORTC'
 VLANPHRASE = ' VLAN'
@@ -25,7 +28,7 @@ INPHRASE = ' IN'
 OUTPHRASE = ' OUT'
 TIMEPHRASE = ' TIMESTAMP'
 
-class OIDParser():
+class OIDParser(CSVManager):
 
     def __init__(self):
         pass
@@ -49,6 +52,18 @@ class OIDParser():
 
         # Do the first poll, Later we should have a task that does this periodically and appends the data everytime to the customerDict, needs more functions still
         self.pollASR()
+
+        #self.exportAsrSNMPData(self.customerDict)
+        self.readGPONcsv(self.customerDict)
+
+
+
+    def DataManager(self):
+        while True:
+
+            time.sleep(60)
+            self.readGPONcsv(self.customerDict)
+
 
 
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
@@ -76,35 +91,9 @@ class OIDParser():
         ## temp experiment ##
 
 
-    def exportAsrSNMPData(self):
-        #### !!! CSV EXPORTER !!! ####
-        with open('Customer_data.csv', 'w') as f:
-            w = csv.writer(f)
+        #for x in self.customerDict.values():
+        #    print (x[0][2])
 
-            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE]
-            w.writerow(header_dict)
-
-            for x in self.customerDict.values():
-
-                csv_list = []
-
-                index = x[0][0]
-                portc = x[0][1]
-                vlan = x[0][2]
-
-                inOct = x[1][0]
-                outOct = x[1][1]
-                timeStamp = x[1][2]
-
-                csv_list.append(index)
-                csv_list.append(portc)
-                csv_list.append(vlan)
-
-                csv_list.append(inOct)
-                csv_list.append(outOct)
-                csv_list.append(timeStamp)
-
-                w.writerow(csv_list)
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
