@@ -59,6 +59,8 @@ class CSVManager():
     # Read GPON csv, export combined data
     def readGPONcsv(self, customerDict):
 
+        print (customerDict)
+
         combined_list = []
 
         with open(MANUAL_FOLDER + 'GPON.csv') as csvGPON:
@@ -90,7 +92,7 @@ class CSVManager():
                     outOct = x[1][1]
                     timeStamp = x[1][2]
 
-                    if gpon_vlan == asr_vlan:
+                    if gpon_vlan == asr_vlan: # If the VLANS match, the data for this line is related and can be appended
                         csv_list.append(index)
                         csv_list.append(portc)
                         csv_list.append(asr_vlan)

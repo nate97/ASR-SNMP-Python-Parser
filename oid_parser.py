@@ -43,6 +43,8 @@ class OIDParser(CSVManager):
         #self.readGPONcsv(self.customerDict)
         self.dataManager()
 
+
+    # THIS IS TEMPORARY, MOST OF THIS SHOULD BE IN THE OIDS MANAGER, AND THE LOOP SHOULD BE IN THE (MAIN.py?) PORTION OF THE APPLICATION!!!
     def dataManager(self):
         while True:
 

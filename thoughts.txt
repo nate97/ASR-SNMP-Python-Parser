@@ -1,3 +1,32 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### OLD
 After we have the main application combining the exported SNMP variables and combined into
 a dictionary, I'll need to work on managing how I will go about keeping records of the 
 customer's data usage, a solution could be having multiple lists inside of the customer
