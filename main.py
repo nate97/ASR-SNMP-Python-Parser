@@ -73,6 +73,15 @@ class ASRDataExtractor(OIDParser):
         return timestamp
 
 
+
+    def createFileTimestamp(self):
+        # Get current time to append to file name.
+        date = datetime.datetime.now()
+        filetimestamp = date.strftime("%Y-%m-%d-%H%M")
+        return filetimestamp
+
+
+
 ASRDataExtractor()
 
 

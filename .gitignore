@@ -106,5 +106,11 @@ venv.bak/
 # Custom credential file
 credentials.yaml
 
+# Exported data
+GPON_CSV/
+
+# GPON 
+MANUAL_CSV/
+
 # PyCharm files
 .idea/
