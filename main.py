@@ -11,11 +11,10 @@ from oid_parser import OIDParser
 ### GLOBALS ###
 
 # FILES #
-CREDENTIALS_FILE = 'credentials.yaml' # File contains all credentials of machines that we may want to access
+CREDENTIALSFILE = 'credentials.yaml' # File contains all credentials of machines that we may want to access
 
 # Heading keys #
-ASR_CREDS_KEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
-
+ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
 
 
 class ASRDataExtractor(OIDParser):
@@ -27,22 +26,29 @@ class ASRDataExtractor(OIDParser):
 
         self.getCredentials()
 
-        self.OIDManager() # Located in class OIDParser
+        self.mainManager()
 
+
+    def mainManager(self):
+        while True:
+            self.OIDManager()  # Located in class OIDParser
+
+            self.readGPONcsv(self.customerDict)
+
+            time.sleep(5)
 
 
     def getCredentials(self):
         # Open the credentials.yaml file so we can parse it
-        yamlCredsFile = self.openYAML(CREDENTIALS_FILE) # CREDENTIALS_FILE is a global variable
+        yamlCredsFile = self.openYAML(CREDENTIALSFILE) # CREDENTIALS_FILE is a global variable
 
         # Get the appropriate credentials out of the YAML data stream
-        ASRCreds =  (yamlCredsFile[ASR_CREDS_KEY]) # DEVICE_YAML_LOGIN is a global variable containing the specific device key for login creds
+        ASRCreds =  (yamlCredsFile[ASRCREDSKEY]) # DEVICE_YAML_LOGIN is a global variable containing the specific device key for login creds
 
         ### Retrive SNMP credentials and put them into global class variables ###
         self.SNMPCommunity = ASRCreds["community"]
         self.SNMPVersion = ASRCreds["version"]
         self.SNMPUrl = ASRCreds["URL"]
-
 
 
     # Opens a yaml file and returns data stream
@@ -53,7 +59,6 @@ class ASRDataExtractor(OIDParser):
                 return yamlDataFile
             except:
                     print (exc)
-
 
 
     def externalProcess(self, commandString):
@@ -67,12 +72,10 @@ class ASRDataExtractor(OIDParser):
         return pythonOutput
 
 
-
     # Generates a time stamp in number of seconds from EPOCH time (Jan,1,1970)
     def createTimestamp(self):
         timestamp = time.time()
         return timestamp
-
 
 
     def createFileTimestamp(self):
@@ -80,7 +83,6 @@ class ASRDataExtractor(OIDParser):
         date = datetime.datetime.now()
         filetimestamp = date.strftime("%Y-%m-%d-%H%M%S")
         return filetimestamp
-
 
 
 ASRDataExtractor()

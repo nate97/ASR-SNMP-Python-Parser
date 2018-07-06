@@ -12,8 +12,8 @@ OUTPHRASE = ' OUT OCTET'
 TIMEPHRASE = ' TIMESTAMP'
 
 # Folder locations #
-MANUAL_FOLDER = 'MANUAL_CSV/'
-GPON_FOLDER = 'GPON_CSV/'
+MANUALFOLDER = 'MANUAL_CSV/'
+GPONFOLDER = 'GPON_CSV/'
 
 
 class CSVManager():
@@ -22,19 +22,18 @@ class CSVManager():
         print ('CSV Manager...')
 
 
-
     # Exports a single session walk from the ASR to CSV
     def exportAsrSNMPData(self, customerDict):
         #### !!! CSV EXPORTER !!! ####
         with open('Customer_data.csv', 'w') as f:
-            w = csv.writer(f)
+            writeCSV = csv.writer(f)
 
-            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE]
-            w.writerow(header_dict)
+            headerDict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE]
+            writeCSV.writerow(headerDict)
 
             for x in customerDict.values():
 
-                csv_list = []
+                csvList = []
 
                 index = x[0][0]
                 portc = x[0][1]
@@ -44,41 +43,37 @@ class CSVManager():
                 outOct = x[1][1]
                 timeStamp = x[1][2]
 
-                csv_list.append(index)
-                csv_list.append(portc)
-                csv_list.append(vlan)
+                csvList.append(index)
+                csvList.append(portc)
+                csvList.append(vlan)
 
-                csv_list.append(inOct)
-                csv_list.append(outOct)
-                csv_list.append(timeStamp)
+                csvList.append(inOct)
+                csvList.append(outOct)
+                csvList.append(timeStamp)
 
-                w.writerow(csv_list)
-                
+                writeCSV.writerow(csvList)
 
 
     # Read GPON csv, export combined data
     def readGPONcsv(self, customerDict):
 
-        print (customerDict)
+        customerList = []
 
-        combined_list = []
-
-        with open(MANUAL_FOLDER + 'GPON.csv') as csvGPON:
+        with open(MANUALFOLDER + 'GPON.csv') as csvGPON:
             readCSV = csv.reader(csvGPON, delimiter=',')
 
             for row in readCSV:
-                csv_list = []
+                csvList = []
 
                 network = (row[0])
 
                 oTag = (row[2])
                 iTag = (row[3])
-                gpon_vlan = (str(oTag) + str(iTag))
+                gponVlan = (str(oTag) + str(iTag))
 
-
-                ID_1 = (row[5])
-                ID_2 = (row[6])
-                match_1 = (row[7])
+                ID1 = (row[5])
+                ID2 = (row[6])
+                match1 = (row[7])
                 descr =  (row[12])
                 ont = (row[13])
 
@@ -86,46 +81,48 @@ class CSVManager():
 
                     index = x[0][0]
                     portc = x[0][1]
-                    asr_vlan = str(x[0][2])
+                    asrVlan = str(x[0][2])
 
                     inOct = x[1][0]
                     outOct = x[1][1]
                     timeStamp = x[1][2]
 
-                    if gpon_vlan == asr_vlan: # If the VLANS match, the data for this line is related and can be appended
-                        csv_list.append(index)
-                        csv_list.append(portc)
-                        csv_list.append(asr_vlan)
-                        csv_list.append(inOct)
-                        csv_list.append(outOct)
-                        csv_list.append(timeStamp)
+                    if gponVlan == asrVlan: # If the VLANS match, the data for this line is related and can be appended
+                        csvList.append(index)
+                        csvList.append(portc)
+                        csvList.append(asrVlan)
+                        csvList.append(inOct)
+                        csvList.append(outOct)
+                        csvList.append(timeStamp)
 
-                        csv_list.append(network)
-                        csv_list.append(ID_1)
-                        csv_list.append(match_1)
-                        csv_list.append(descr)
-                        csv_list.append(ont)
+                        csvList.append(network)
+                        csvList.append(ID1)
+                        csvList.append(match1)
+                        csvList.append(descr)
+                        csvList.append(ont)
 
-                        combined_list.append(csv_list)
+                        customerList.append(csvList)
         # Close the GPON csv file
         csvGPON.close()
 
+        self.exportGPONCustomerData(customerList)
 
-        ###### SHOULD BE A NEW FUNCTION. ######
 
+    # Exports combined ASR GPON CSV files
+    def exportGPONCustomerData(self, customerList):
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 
         # Create a CSV file to put our merged data from GPON and ASR in
-        with open(GPON_FOLDER + 'gpon-customer-data-' + time + '.csv', 'w') as csvGPONcustomer:
-            a = csv.writer(csvGPONcustomer)
+        with open(GPONFOLDER + 'gpon-customer-data-' + time + '.csv', 'w') as csvGPONcustomer:
+            writeCSV = csv.writer(csvGPONcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
-            a.writerow(header_dict)
+            headerList = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
+            writeCSV.writerow(headerList)
 
-            for customer in combined_list:
-                temp_list = []
+            for customer in customerList:
+                tempList = []
 
                 index = customer[0]
                 portc = customer[1]
@@ -140,20 +137,20 @@ class CSVManager():
                 descr = customer[9]
                 ont = customer[10]
 
-                temp_list.append(index)
-                temp_list.append(portc)
-                temp_list.append(vlan)
-                temp_list.append(inOct)
-                temp_list.append(outOct)
-                temp_list.append(timeStamp)
+                tempList.append(index)
+                tempList.append(portc)
+                tempList.append(vlan)
+                tempList.append(inOct)
+                tempList.append(outOct)
+                tempList.append(timeStamp)
 
-                temp_list.append(network)
-                temp_list.append(ID)
-                temp_list.append(match)
-                temp_list.append(descr)
-                temp_list.append(ont)
+                tempList.append(network)
+                tempList.append(ID)
+                tempList.append(match)
+                tempList.append(descr)
+                tempList.append(ont)
 
-                a.writerow(temp_list)
+                writeCSV.writerow(tempList)
 
         # Close our merged ASR, GPON CSV file
         csvGPONcustomer.close()
