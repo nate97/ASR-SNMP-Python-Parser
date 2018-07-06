@@ -34,35 +34,36 @@ class OIDParser(CSVManager):
         pass
 
 
+
     # KEEP OID LISTS IN HERE, [NOT] GLOBAL
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
-        # Dictionary that contains customer data with VLAN and data usage
-        self.customerDict = {} # This will inevitably be the dictionary where we export the data to either a YAML file or YAML files, for individual customers
-
-        # Stores descr data from ASR, includes VLANs
-        self.descrDict = {}
-
-        # Key is SNMP index value
-        self.octetInDict = {}
-        self.octetOutDict = {}
-        # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
-        self.octetDict = {}
-
-        # Do the first poll, Later we should have a task that does this periodically and appends the data everytime to the customerDict, needs more functions still
-        self.pollASR()
-
         #self.exportAsrSNMPData(self.customerDict)
-        self.readGPONcsv(self.customerDict)
+        #self.readGPONcsv(self.customerDict)
+        self.dataManager()
 
-
-
-    def DataManager(self):
+    def dataManager(self):
         while True:
 
-            time.sleep(60)
+            # Dictionary that contains customer data with VLAN and data usage
+            self.customerDict = {}  # This will inevitably be the dictionary where we export the data to either a YAML file or YAML files, for individual customers
+
+            # Stores descr data from ASR, includes VLANs
+            self.descrDict = {}
+
+            # Key is SNMP index value
+            self.octetInDict = {}
+            self.octetOutDict = {}
+            # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
+            self.octetDict = {}
+
+            # Do the first poll, Later we should have a task that does this periodically and appends the data everytime to the customerDict, needs more functions still
+            self.pollASR()
+
             self.readGPONcsv(self.customerDict)
+
+            time.sleep(5)
 
 
 
@@ -87,13 +88,6 @@ class OIDParser(CSVManager):
 
         # Combine all of our SNMP data from ONE polling session
         self.combOctetsDescr() # Each time we poll the ASR for SNMP data will be called a " session ", we will take the data from each session and append it to global customerDict
-
-        ## temp experiment ##
-
-
-        #for x in self.customerDict.values():
-        #    print (x[0][2])
-
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )

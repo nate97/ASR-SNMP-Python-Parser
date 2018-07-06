@@ -1,8 +1,5 @@
 import time
 import csv
-import datetime
-
-from csv_manager import CSVManager
 
 ### GLOBALS ###
 
@@ -19,7 +16,7 @@ MANUAL_FOLDER = 'MANUAL_CSV/'
 GPON_FOLDER = 'GPON_CSV/'
 
 
-class CSVManager(CSVManager):
+class CSVManager():
 
     def __init__(self):
         print ('CSV Manager...')
@@ -115,14 +112,14 @@ class CSVManager(CSVManager):
         ###### SHOULD BE A NEW FUNCTION. ######
 
         # Get current time to append to file name.
-        time = createFileTimestamp()
+        time = self.createFileTimestamp()
 
         # Create a CSV file to put our merged data from GPON and ASR in
         with open(GPON_FOLDER + 'gpon-customer-data-' + time + '.csv', 'w') as csvGPONcustomer:
             a = csv.writer(csvGPONcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION"] # Needs to be placed in globals
+            header_dict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
             a.writerow(header_dict)
 
             for customer in combined_list:
