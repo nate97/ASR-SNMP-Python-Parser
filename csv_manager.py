@@ -57,7 +57,7 @@ class CSVManager():
     # Read GPON csv, export combined data
     def readGPONcsv(self, customerDict):
 
-        customerList = []
+        self.customerList = []
 
         with open(MANUALFOLDER + 'GPON.csv') as csvGPON:
             readCSV = csv.reader(csvGPON, delimiter=',')
@@ -101,15 +101,15 @@ class CSVManager():
                         csvList.append(descr)
                         csvList.append(ont)
 
-                        customerList.append(csvList)
+                        self.customerList.append(csvList)
         # Close the GPON csv file
         csvGPON.close()
 
-        self.exportGPONCustomerData(customerList)
+        #self.exportGPONCustomerData(customerList)
 
 
     # Exports combined ASR GPON CSV files
-    def exportGPONCustomerData(self, customerList):
+    def exportGPONCustomerData(self):
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 
@@ -121,7 +121,7 @@ class CSVManager():
             headerList = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
             writeCSV.writerow(headerList)
 
-            for customer in customerList:
+            for customer in self.customerList:
                 tempList = []
 
                 index = customer[0]

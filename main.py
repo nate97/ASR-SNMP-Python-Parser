@@ -34,6 +34,7 @@ class ASRDataExtractor(OIDParser):
             self.OIDManager()  # Located in class OIDParser
 
             self.readGPONcsv(self.customerDict)
+            self.exportGPONCustomerData()
 
             time.sleep(5)
 
