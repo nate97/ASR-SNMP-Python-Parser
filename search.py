@@ -49,12 +49,13 @@ class searchManager():
         if args.vlan:
             self.searchHistorical(args.vlan, 'vlan')
 
+
+
     def searchHistorical(self, searchTxt, searchType):
         matches = []
 
         for x in self.historicalList:
             for o in x:
-
 
                 # This should be more dynamic so we can search for more than one property at a time
                 if searchType == 'name':
@@ -75,7 +76,6 @@ class searchManager():
                         matches.append(o)
 
         if not matches:
-            #print ('Not found')
             return
 
         print (matches[1])
@@ -102,6 +102,9 @@ class searchManager():
 
         test.append(timeStampsList)
         print (test)
+
+
+
 
 
     def historicalListManager(self):
@@ -156,8 +159,34 @@ class searchManager():
         # Close the GPON csv file
         csvData.close()
 
+
+        # TEMPORARY #
+        TTest = []
+        for x in customerList:
+            TTest.append(x[9])
+
+        #print (TTest)
+        result = self.remove_duplicates(TTest)
+        print(result)
+
+
         return customerList # Returns customer data from the CSV file as a list
 
+
+
+
+    def remove_duplicates(self, values):
+        output = []
+        seen = set()
+        for value in values:
+            # If value has not been encountered yet,
+            # ... add it to both list and set.
+            if value not in seen:
+
+                output.append(value)
+                seen.add(value)
+        print (seen)
+        return output
 
 
 searchManager()
