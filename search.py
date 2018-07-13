@@ -2,6 +2,8 @@ import datetime
 import time
 import csv
 import os, glob
+import argparse
+import sys
 
 
 ### GLOBALS ###
@@ -19,24 +21,64 @@ class searchManager():
         self.searchManager()
 
 
+
     def searchManager(self):
         self.filesList = []
 
         self.historicalListManager()
 
-        self.searchHistorical()
+        self.appArgs()
+        #self.searchHistorical()
 
 
-    def searchHistorical(self):
-        customerName = input('Customer name: ')
 
+    def appArgs(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--name", help="Search for customer with name")
+        parser.add_argument("--ont", help="Search for customer with ONT")
+        parser.add_argument("--id", help="Search for customer with ID")
+        parser.add_argument("--vlan", help="Search for customer with VLAN")
+        args = parser.parse_args()
+
+        if args.name:
+            self.searchHistorical(args.name, 'name')
+        if args.ont:
+            self.searchHistorical(args.ont, 'ont')
+        if args.id:
+            self.searchHistorical(args.id, 'id')
+        if args.vlan:
+            self.searchHistorical(args.vlan, 'vlan')
+
+    def searchHistorical(self, searchTxt, searchType):
         matches = []
 
         for x in self.historicalList:
             for o in x:
-                if o[9] == customerName:
-                    print ('We have a match.')
-                    matches.append(o) # Append the matching lists to " matches "
+
+
+                # This should be more dynamic so we can search for more than one property at a time
+                if searchType == 'name':
+                    if o[9] == searchTxt: # Customer name
+                        #print ('Name match.')
+                        matches.append(o)
+                if searchType == 'ont':
+                    if o[10] == searchTxt: # ONT
+                        #print ('ONT match.')
+                        matches.append(o)
+                if searchType == 'id':
+                    if o[7] == searchTxt: # ID
+                        #print ('ID match.')
+                        matches.append(o)
+                if searchType == 'vlan':
+                    if o[2] == searchTxt:
+                        #print ('VLAN match')
+                        matches.append(o)
+
+        if not matches:
+            #print ('Not found')
+            return
+
+        print (matches[1])
 
         test = []
 
@@ -52,12 +94,17 @@ class searchManager():
         test.append(matches[0][0])
         test.append(matches[0][1])
         test.append(matches[0][2])
+        test.append(matches[0][6])
+        test.append(matches[0][7])
+        test.append(matches[0][8])
+        test.append(matches[0][9])
+        test.append(matches[0][10])
 
         test.append(timeStampsList)
         print (test)
 
-    def historicalListManager(self):
 
+    def historicalListManager(self):
         self.importCustomerData()
 
         self.historicalList = []
@@ -67,8 +114,7 @@ class searchManager():
             customerList = self.parseHistoricalCSV(filename)
             self.historicalList.append(customerList)
 
-        print (self.historicalList)
-
+        #print (self.historicalList)
 
     # Find all files in directory and appends them to a list
     def importCustomerData(self):
@@ -78,8 +124,9 @@ class searchManager():
                     self.filesList.append(GPONDIRECTORY + file) # Append file directory and name to a list
 
 
+
     # Reads CSV file and converts the rows into lists and puts them into a list
-    def parseHistoricalCSV(self, csvFile, ):
+    def parseHistoricalCSV(self, csvFile):
 
         customerList = []
 
@@ -110,5 +157,7 @@ class searchManager():
         csvData.close()
 
         return customerList # Returns customer data from the CSV file as a list
+
+
 
 searchManager()
