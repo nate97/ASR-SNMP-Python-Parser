@@ -34,10 +34,13 @@ class searchManager():
     def historicalListManager(self):
         self.filesList = []
         self.historicalList = []
+        self.comboHistorical = []
 
         self.importCustomerData()
 
         self.iterateCSVFiles()
+
+        #self.combineHistOctets()
 
 
 
@@ -90,7 +93,12 @@ class searchManager():
 
 
 
+
+    def mergeHistCSV(self):
+        pass
+
     def argsManager(self):
+        print ("?")
         parser = argparse.ArgumentParser()
         parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
         parser.add_argument(SEARONT, help="Search for customer with ONT")
@@ -103,6 +111,7 @@ class searchManager():
 
     # Simple switch for the type of data user is searching for
     def searchSwitch(self, inputArgs):
+        print ("search")
         if inputArgs.name:
             self.searchName(inputArgs.name)
         if inputArgs.ont:
@@ -114,14 +123,16 @@ class searchManager():
         # Add new search fields here
 
 
+
     # Search through historical lists for specific customer name
     def searchName(self, name):
+        print ("search name")
         nameMatches = []
 
         for xList in self.historicalList: # xList is essentially an (individual) CSV file that has been converted to a list
 
             # Put check for customer's with same name HERE
-            if not self.hasDuplicates(xList, name): # THIS IS MERGING THE CSV FILES, SO WE SHOULD CHECK WHAT THE INDEX VALUE IS
+            if not self.hasDuplicateNames(xList, name): # THIS IS MERGING THE CSV FILES, SO WE SHOULD CHECK WHAT THE INDEX VALUE IS
                 return
 
             for customers in xList:
@@ -129,8 +140,6 @@ class searchManager():
                 if customers[9] == name:  # Name
                     # We have a name match.
                     nameMatches.append(customers)
-                    #print (name)
-                    #print (customers[0])
 
 
         ###### Somewhere in here we need to deal with multiple people with the SAME name!!! ######
@@ -154,8 +163,7 @@ class searchManager():
 
 
 
-
-    def hasDuplicates(self, customerList, searchValue):
+    def hasDuplicateNames(self, customerList, searchValue):
         identical = 0
 
         for customers in customerList:
@@ -173,14 +181,96 @@ class searchManager():
             return True
 
 
+    def combineHistOctets(self):
+        unsortedList = []
+        print ("?")
+
+        custCount = 0
+        histCount = 0
+
+        for x in self.historicalList:
+            for y in self.historicalList[histCount]:
+
+                #print (y)
+                unsortedList.append(y)
+                custCount += 1 # Iterate over next customer
+
+            histCount += 1 # Iterate over next set of customers
+
+
+
+        combinedLists = []
+
+        for z in unsortedList:
+            custIndex = z[0] # ASR index value
+            custVlan = z[2] # ASR customer vlan tag
+            custID = z[7] # I'm using this incase we have an index value collision...
+            custCombine = []
+
+
+            # Only append these once.
+            custCombine.append(custIndex) # Append ASR Index
+            custCombine.append(z[1]) # Append portchannel
+            custCombine.append(z[2]) # Append vlan tag
+
+            #print (z[0])
+
+            for a in unsortedList:
+
+                #### IMPORTANT ####
+                if a[0] == custIndex and a[2] == custVlan and a[7] == custID: # This is to make sure we're combining the OCTETS of the same customer, can be easily modified.
+
+                    # Append the different octet data
 
 
 
 
+                    ##################
+                    custCombine.append(a[6])  # Network
+                    custCombine.append(a[7])  # ID
+                    custCombine.append(a[8])  # Matc
+                    custCombine.append(a[9])  # Description
+                    custCombine.append(a[10]) # ONT
+
+                    timeList = []
+                    timeList.append(a[3]) # IN Octet
+                    timeList.append(a[4]) # OUT Octet
+                    timeList.append(a[5]) # Timestamp
+                    custCombine.append(timeList)
 
 
-    def combineHistOctets(self, matches):
-        pass
+
+                    #custCombine.append(a[7])
+
+
+            combinedLists.append(custCombine) # Append this to our main list
+
+        print (combinedLists)
+        #print (combinedLists)
+
+        #for d in combinedLists:
+        #    print (d)
+
+
+        #for cVar in range(0, len(self.historicalList)): # Dump all customers into one giant list
+
+            #for customer in self.historicalList[cVar]:
+            #    unsortedList.append(customer)
+
+            #unsortedList.append(self.historicalList[cVar])
+
+
+        #count = 0
+        #for x in range(0, len(self.historicalList)):
+            #count += 1
+
+            #print (count)
+
+            #print (test[0])
+
+
+
+        #print (unsortedList[0])
 
 
 

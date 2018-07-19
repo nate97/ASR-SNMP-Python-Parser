@@ -119,6 +119,8 @@ class searchManager():
 
         #print (self.historicalList)
 
+
+
     # Find all files in directory and appends them to a list
     def importCustomerData(self):
         for root, dirs, files in os.walk(GPONDIRECTORY):
