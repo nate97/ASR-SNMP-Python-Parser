@@ -40,7 +40,7 @@ class searchManager():
 
         self.iterateCSVFiles()
 
-        #self.combineHistOctets()
+        self.combineHistOctets()
 
 
 
@@ -98,7 +98,6 @@ class searchManager():
         pass
 
     def argsManager(self):
-        print ("?")
         parser = argparse.ArgumentParser()
         parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
         parser.add_argument(SEARONT, help="Search for customer with ONT")
@@ -111,7 +110,6 @@ class searchManager():
 
     # Simple switch for the type of data user is searching for
     def searchSwitch(self, inputArgs):
-        print ("search")
         if inputArgs.name:
             self.searchName(inputArgs.name)
         if inputArgs.ont:
@@ -126,25 +124,28 @@ class searchManager():
 
     # Search through historical lists for specific customer name
     def searchName(self, name):
-        print ("search name")
+        #print (self.comboHistorical)
+        #print ("search name")
         nameMatches = []
 
-        for xList in self.historicalList: # xList is essentially an (individual) CSV file that has been converted to a list
+        #for xxx in self.comboHistorical:
+        #    print (xxx)
+
+        for customer in self.comboHistorical: # xList is every customer we know about
 
             # Put check for customer's with same name HERE
-            if not self.hasDuplicateNames(xList, name): # THIS IS MERGING THE CSV FILES, SO WE SHOULD CHECK WHAT THE INDEX VALUE IS
-                return
+            #if not self.hasDuplicateNames(xList, name): # THIS IS MERGING THE CSV FILES, SO WE SHOULD CHECK WHAT THE INDEX VALUE IS
+            #    return
 
-            for customers in xList:
-
-                if customers[9] == name:  # Name
-                    # We have a name match.
-                    nameMatches.append(customers)
+            if customer[6] == name:  # Name
+                # We have a name match.
+                nameMatches.append(customer)
+                #print (customer)
 
 
         ###### Somewhere in here we need to deal with multiple people with the SAME name!!! ######
 
-        self.combineHistOctets(nameMatches)
+
 
 
     # Search through historical lists for specific ONT
@@ -183,7 +184,6 @@ class searchManager():
 
     def combineHistOctets(self):
         unsortedList = []
-        print ("?")
 
         custCount = 0
         histCount = 0
@@ -213,7 +213,12 @@ class searchManager():
             custCombine.append(z[1]) # Append portchannel
             custCombine.append(z[2]) # Append vlan tag
 
-            #print (z[0])
+            ##################
+            custCombine.append(z[6])  # Network
+            custCombine.append(z[7])  # ID
+            custCombine.append(z[8])  # Matc
+            custCombine.append(z[9])  # Description
+            custCombine.append(z[10])  # ONT
 
             for a in unsortedList:
 
@@ -222,56 +227,18 @@ class searchManager():
 
                     # Append the different octet data
 
-
-
-
-                    ##################
-                    custCombine.append(a[6])  # Network
-                    custCombine.append(a[7])  # ID
-                    custCombine.append(a[8])  # Matc
-                    custCombine.append(a[9])  # Description
-                    custCombine.append(a[10]) # ONT
-
                     timeList = []
                     timeList.append(a[3]) # IN Octet
                     timeList.append(a[4]) # OUT Octet
                     timeList.append(a[5]) # Timestamp
                     custCombine.append(timeList)
+            print ("???")
+            print (custCombine)
 
+            self.comboHistorical.append(custCombine) # Append this to our main list
 
-
-                    #custCombine.append(a[7])
-
-
-            combinedLists.append(custCombine) # Append this to our main list
-
-        print (combinedLists)
-        #print (combinedLists)
-
-        #for d in combinedLists:
-        #    print (d)
-
-
-        #for cVar in range(0, len(self.historicalList)): # Dump all customers into one giant list
-
-            #for customer in self.historicalList[cVar]:
-            #    unsortedList.append(customer)
-
-            #unsortedList.append(self.historicalList[cVar])
-
-
-        #count = 0
-        #for x in range(0, len(self.historicalList)):
-            #count += 1
-
-            #print (count)
-
-            #print (test[0])
-
-
-
-        #print (unsortedList[0])
-
+        #for ddd in self.comboHistorical:
+            #print (ddd)
 
 
 searchManager()
