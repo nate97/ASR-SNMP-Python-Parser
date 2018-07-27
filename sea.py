@@ -93,9 +93,10 @@ class searchManager():
 
 
 
-
     def mergeHistCSV(self):
         pass
+
+
 
     def argsManager(self):
         parser = argparse.ArgumentParser()
@@ -108,6 +109,7 @@ class searchManager():
         self.searchSwitch(args)
 
 
+
     # Simple switch for the type of data user is searching for
     def searchSwitch(self, inputArgs):
         if inputArgs.name:
@@ -117,19 +119,15 @@ class searchManager():
         if inputArgs.id:
             self.searchID(inputArgs.id)
         if inputArgs.index:
-            self.searchIndex(inputArgs.vlan)
+            self.searchIndex(inputArgs.index)
         # Add new search fields here
 
 
 
     # Search through historical lists for specific customer name
     def searchName(self, name):
-        #print (self.comboHistorical)
-        #print ("search name")
+        #print ("Searching for name: " + name)
         nameMatches = []
-
-        #for xxx in self.comboHistorical:
-        #    print (xxx)
 
         for customer in self.comboHistorical: # xList is every customer we know about
 
@@ -140,27 +138,49 @@ class searchManager():
             if customer[6] == name:  # Name
                 # We have a name match.
                 nameMatches.append(customer)
-                #print (customer)
-
-
-        ###### Somewhere in here we need to deal with multiple people with the SAME name!!! ######
-
+                print (customer)
 
 
 
     # Search through historical lists for specific ONT
     def searchONT(self, ont):
-        pass
+        #print ("Searching for ONT: " + ont)
+        ontMatches = []
+
+        for customer in self.comboHistorical: # xList is every customer we know about
+
+            if customer[7] == ont:  # ONT
+                # We have a name match.
+                ontMatches.append(customer)
+                print (customer)
+
 
 
     # Search through historical lists for specific ID
     def searchID(self, id):
-        pass
+        #print ("Searching for ID: " + id)
+        idMatches = []
+
+        for customer in self.comboHistorical: # xList is every customer we know about
+
+            if customer[4] == id:  # ID
+                # We have a name match.
+                idMatches.append(customer)
+                print (customer)
+
 
 
     # Search through historical lists for index
     def searchIndex(self, index):
-        pass
+        #print ("Searching for index: " + index)
+        indexMatches = []
+
+        for customer in self.comboHistorical: # xList is every customer we know about
+
+            if customer[0] == index:  # ID
+                # We have a name match.
+                indexMatches.append(customer)
+                print (customer)
 
 
 
@@ -182,25 +202,22 @@ class searchManager():
             return True
 
 
+
     def combineHistOctets(self):
         unsortedList = []
-
         custCount = 0
         histCount = 0
 
         for x in self.historicalList:
             for y in self.historicalList[histCount]:
 
-                #print (y)
                 unsortedList.append(y)
                 custCount += 1 # Iterate over next customer
 
             histCount += 1 # Iterate over next set of customers
 
 
-
         combinedLists = []
-
         for z in unsortedList:
             custIndex = z[0] # ASR index value
             custVlan = z[2] # ASR customer vlan tag
@@ -232,13 +249,12 @@ class searchManager():
                     timeList.append(a[4]) # OUT Octet
                     timeList.append(a[5]) # Timestamp
                     custCombine.append(timeList)
-            print ("???")
-            print (custCombine)
 
-            self.comboHistorical.append(custCombine) # Append this to our main list
 
-        #for ddd in self.comboHistorical:
-            #print (ddd)
+            if custCombine not in self.comboHistorical: # Fixes issue where it would append identical copies of customers because of how we iterate through the unsorted list.
+                self.comboHistorical.append(custCombine) # Append this to our main list
+                print (custCombine)
+
 
 
 searchManager()
