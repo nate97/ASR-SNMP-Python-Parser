@@ -253,7 +253,7 @@ class searchManager():
 
             if custCombine not in self.comboHistorical: # Fixes issue where it would append identical copies of customers because of how we iterate through the unsorted list.
                 self.comboHistorical.append(custCombine) # Append this to our main list
-                print (custCombine)
+                #print (custCombine)
 
 
 

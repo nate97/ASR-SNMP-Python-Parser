@@ -22,37 +22,6 @@ class CSVManager():
         print ('CSV Manager...')
 
 
-    # Exports a single session walk from the ASR to CSV
-    def exportAsrSNMPData(self, customerDict):
-        #### !!! CSV EXPORTER !!! ####
-        with open('Customer_data.csv', 'w') as f:
-            writeCSV = csv.writer(f)
-
-            headerDict = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE]
-            writeCSV.writerow(headerDict)
-
-            for x in customerDict.values():
-
-                csvList = []
-
-                index = x[0][0]
-                portc = x[0][1]
-                vlan = x[0][2]
-
-                inOct = x[1][0]
-                outOct = x[1][1]
-                timeStamp = x[1][2]
-
-                csvList.append(index)
-                csvList.append(portc)
-                csvList.append(vlan)
-
-                csvList.append(inOct)
-                csvList.append(outOct)
-                csvList.append(timeStamp)
-
-                writeCSV.writerow(csvList)
-
 
     # Read GPON csv, export combined data
     def readGPONcsv(self, customerDict):
@@ -105,7 +74,6 @@ class CSVManager():
         # Close the GPON csv file
         csvGPON.close()
 
-        #self.exportGPONCustomerData(customerList)
 
 
     # Exports combined ASR GPON CSV files

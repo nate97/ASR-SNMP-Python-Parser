@@ -34,7 +34,7 @@ class OIDParser(CSVManager):
         pass
 
 
-    # KEEP OID LISTS IN HERE, [NOT] GLOBAL
+    # KEEP OID LISTS IN HERE, [NOT] GLOBAL. This method is called in a for loop in main.py
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
@@ -50,11 +50,9 @@ class OIDParser(CSVManager):
         # Combined octets dict, Get index from octetIn and octetOut dicts and combine them into THIS dictionary
         self.octetDict = {}
 
-        # Do the first poll, Later we should have a task that does this periodically and appends the data everytime to the customerDict, needs more functions still
+        # Polls the ASR once
         self.pollASR()
 
-        #self.exportAsrSNMPData(self.customerDict)
-        #self.readGPONcsv(self.customerDict)
 
 
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
@@ -78,6 +76,7 @@ class OIDParser(CSVManager):
 
         # Combine all of our SNMP data from ONE polling session
         self.combOctetsDescr() # Each time we poll the ASR for SNMP data will be called a " session ", we will take the data from each session and append it to global customerDict
+
 
 
     def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
@@ -201,6 +200,6 @@ class OIDParser(CSVManager):
 
                     self.customerDict[octetIndex] = (self.descrDict.get(octetIndex), self.octetDict.get(octetIndex))
 
-        print (self.customerDict)
+        #print (self.customerDict)
 
 
