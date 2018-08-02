@@ -19,7 +19,7 @@ GPONFOLDER = 'GPON_CSV/'
 class CSVManager():
 
     def __init__(self):
-        print ('CSV Manager...')
+        print ('GPON CSV Manager...')
 
 
 

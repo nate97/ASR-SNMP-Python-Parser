@@ -38,8 +38,8 @@ class OIDParser(CSVManager):
     def OIDManager(self):
         # We will process and keep track of all OID data HERE
 
-        # Dictionary that contains customer data with VLAN and data usage
-        self.customerDict = {}  # This will inevitably be the dictionary where we export the data to either a YAML file or YAML files, for individual customers
+        # Dictionary that contains customer data with VLAN and data usage ( FROM THE ASR )
+        self.customerDict = {}  # This will be the dictionary that we export the data to a YAML file
 
         # Stores descr data from ASR, includes VLANs
         self.descrDict = {}

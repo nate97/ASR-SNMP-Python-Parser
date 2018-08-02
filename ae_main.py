@@ -4,6 +4,9 @@ import time
 
 import yaml
 
+from oid_parser import OIDParser
+from csv_ae_manager import AECSVManager
+
 
 ### GLOBALS ###
 
@@ -15,13 +18,15 @@ ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access 
 
 
 
-class AEManager():
+class AEManager(OIDParser, AECSVManager):
 
     def __init__(self):
-        print ("AE extractor")
+        print ("AE extractor...")
 
         self.getCredentials()
-
+        self.OIDManager()  # Located in class OIDParser
+        self.readAEcsv(self.customerDict)
+        self.exportAECustomerData()
 
 
     def getCredentials(self):
