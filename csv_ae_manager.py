@@ -4,16 +4,30 @@ import csv
 ### GLOBALS ###
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
-INDEXPHRASE = ' INDEX'
-PORTCHANPHRASE = ' PORTCHANNEL'
-VLANPHRASE = ' VLAN'
-INPHRASE = ' IN OCTET'
-OUTPHRASE = ' OUT OCTET'
-TIMEPHRASE = ' TIMESTAMP'
+HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
+              "Out octet", "Timestamp", "Network",
+              "ID", "Match", "Description",
+              "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
+
+# This is for calculating the cTag based off of the customers region for Active E #
+REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
+    "Leamington": "705",
+    "Cave In Rock": "805",
+    "Elizabethtown": "905",
+    "Rosiclare": "1005",
+    "Golconda": "1105",
+    "Renshaw": "1205",
+    "Simpson": "1305",
+    "Eddyville": "1405",
+    "Hicks": "1505",
+    "Equality": "1605",
+    "Anna": "1705",
+    "Vienna": "1805" }
 
 # Folder locations #
 MANUALFOLDER = 'MANUAL_CSV/'
 AEFOLDER = 'AE_CSV/'
+
 
 
 class AECSVManager():
@@ -33,12 +47,12 @@ class AECSVManager():
             readCSV = csv.reader(csvAE, delimiter=',')
 
             for row in readCSV:
-
-
                 # Bypasses any errors or useless data in CSV file #
                 if "AEONTID" in row[0] or "generated" in row[0]: # Skip the first two useless rows
                     continue
-                if row[9] == ' ':
+                if row[3] == ' ': # If column 3 has no description skip it
+                    continue
+                if row[9] == ' ': # If column 9 has no linkedPort skip it
                     continue
                 if row[27] == ' ' or row[27] == 'autodiscovered':
                     continue
@@ -63,7 +77,6 @@ class AECSVManager():
 
                 cTag = self.calculateCTag(row[9]) # row 9 is linked-port
                 sTag = self.calculateSTag(row[27]) # Row 27 is the region
-
                 if sTag == None: # This skips appending the customer to our list. Something is wrong with the data.
                     continue
 
@@ -80,7 +93,6 @@ class AECSVManager():
                     timeStamp = x[1][2]
 
                     if aeVlan == asrVlan: # If the VLANS match, the data for this line is related and can be appended
-
                         # Append CSV data to list #
                         csvList.append(index)
                         csvList.append(portc)
@@ -90,61 +102,44 @@ class AECSVManager():
                         csvList.append(timeStamp)
 
                         csvList.append(region)
-                        csvList.append('')
-                        csvList.append('')
+                        csvList.append('') # ID1
+                        csvList.append('') # Match1
                         csvList.append(descr)
+                        csvList.append('') # ONT
                         csvList.append(linkedPort)
+                        csvList.append(ipAddr)
+                        #print (linkedPort)
 
                         self.customerList.append(csvList)
         # Close the AE csv file
         csvAE.close()
-        print (self.customerList)
+        #print (self.customerList)
 
 
 
+    # Calculates our Ctag with formula from the linkedPort data for customer, used for vlan
     def calculateCTag(self, linkedPort):
         lPort = linkedPort.split("-")
 
-        cTag = str(int(lPort[0]) * 100 + (int(lPort[1])-1)*24 + int(lPort[2]))
+        cTag = str(int(lPort[0]) * 100 + (int(lPort[1])-1)*24 + int(lPort[2])) # Formula for caluclating cTag
 
-        if len(cTag) <= 3:
+        if len(cTag) <= 3: # Appends a "0" if the cTag is too short ( Is this correct??? )
             cTag = "0" + cTag
 
         return cTag
 
 
 
+    # Calculates Stag based off of region customer is located in, used for vlan
     def calculateSTag(self, region):
-        if region == "Equality":
-            regionCode = "1605"
-        elif region == "Leamington":
-            regionCode = "705"
-        elif region == "Cave In Rock":
-            regionCode = "805"
-        elif region == "Elizabethtown":
-            regionCode = "905"
-        elif region == "Rosiclare":
-            regionCode = "1005"
-        elif region == "Golconda":
-            regionCode = "1105"
-        elif region == "Renshaw":
-            regionCode = "1205"
-        elif region == "Simpson":
-            regionCode = "1305"
-        elif region == "Anna":
-            regionCode = "1705"
-        elif region == "Vienna":
-            regionCode = "1805"
-        elif region == "Eddyville":
-            regionCode = "1405"
-        elif region == "Hicks":
-            regionCode = "1505"
-        else:
+        if region in REGIONDICT: # Region is valid and in our GLOBAL region dictionary
+            regionCode = REGIONDICT[region]
+            print (regionCode)
+        else: # Region was not in dictionary, throw an error to user
+            print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
             regionCode = None
-            print ("Unknown region code: '" + region + "', setting region name to None and skipping customer, add if statement for new regions")
 
         return regionCode
-
 
 
 
@@ -158,12 +153,13 @@ class AECSVManager():
             writeCSV = csv.writer(csvAEcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            headerList = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
-            writeCSV.writerow(headerList)
+            writeCSV.writerow(HEADERLIST)
 
             for customer in self.customerList:
                 tempList = []
 
+
+                # This is stupid, should just do this all in one go and comment what pieces are what.
                 index = customer[0]
                 portc = customer[1]
                 vlan = customer[2]
@@ -175,7 +171,9 @@ class AECSVManager():
                 ID = customer[7]
                 match = customer[8]
                 descr = customer[9]
-                linkedPort = customer[10]
+                ont = customer[10]
+                linkedPort = customer[11]
+                ipAddr = customer[12]
 
                 tempList.append(index)
                 tempList.append(portc)
@@ -188,10 +186,13 @@ class AECSVManager():
                 tempList.append(ID)
                 tempList.append(match)
                 tempList.append(descr)
+                tempList.append(ont)
                 tempList.append(linkedPort)
+                tempList.append(ipAddr)
 
                 writeCSV.writerow(tempList)
 
         # Close our merged ASR, GPON CSV file
         csvAEcustomer.close()
+
 
