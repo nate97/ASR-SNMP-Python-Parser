@@ -1,4 +1,5 @@
 import subprocess
+import argparse
 import os
 
 ### GLOBALS ###
@@ -6,9 +7,13 @@ import os
 # Directorys and file extensions #
 GPONDIRECTORY = 'GPON_CSV/'
 CSVEXTENS = '.csv'
-
 TEMPFILE = 'temp.txt'
 
+# SEARCH ARGS #
+SEARNAME = '--name'
+SEARONT = '--ont'
+SEARID = '--id'
+SEARINDEX = '--index'
 
 # This script will allow you to search through all of the historical data collected on customers bandwidth usage
 class searchManager():
@@ -16,13 +21,13 @@ class searchManager():
     def __init__(self):
         print ("Grep searcher...")
 
-        self.grepCommand("fgrep -h 'Tosha Brooks' GPON_CSV/* > temp.txt")
-
-        self.grepParser()
+        self.argsManager()
 
 
 
-    def grepCommand(self, command):
+    def grepCommand(self, name):
+        command = "fgrep -h '%s' GPON_CSV/* > %s" % (name, TEMPFILE)
+
         subprocess.call(command, shell=True)
 
 
@@ -62,7 +67,41 @@ class searchManager():
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
         print (customerList)
-        
+
+
+
+    def argsManager(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
+        parser.add_argument(SEARONT, help="Search for customer with ONT")
+        parser.add_argument(SEARID, help="Search for customer with ID")
+        parser.add_argument(SEARINDEX, help="Search for customer with ASR index value")
+        args = parser.parse_args()
+
+        self.searchSwitch(args)
+
+
+
+    # Simple switch for the type of data user is searching for
+    def searchSwitch(self, inputArgs):
+        if inputArgs.name:
+            self.searchCustomers(inputArgs.name)
+        if inputArgs.ont:
+            self.searchCustomers(inputArgs.ont)
+        if inputArgs.id:
+            self.searchCustomers(inputArgs.id)
+        if inputArgs.index:
+            self.searchCustomers(inputArgs.index)
+        # Add new search fields here
+
+
+
+    def searchCustomers(self, name):
+        self.grepCommand(name)
+        self.grepParser()
+
+
+
 searchManager()
 
 
