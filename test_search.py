@@ -48,6 +48,11 @@ class searchManager():
             
             if staticFlag == 0: # This is so we don't put the static information about the customer only once
                 staticFlag = 1 # This flag indicates we have already appended the static customer data
+
+                # This is so we can make sure we don't accidently get two different customers
+                cIndex = n[0]
+                cONT = n[10]
+
                 customerList.append(n[0])  # ASR Index
                 customerList.append(n[1])  # Porthchannel
                 customerList.append(n[2])  # VLAN
@@ -56,17 +61,29 @@ class searchManager():
                 customerList.append(n[8])  # MATCH
                 customerList.append(n[9])  # Description
                 customerList.append(n[10]) # ONT
+                customerList.append(n[11]) # PortChannel
+                customerList.append(n[12]) # IP Address
 
-            # Octet data #
-            octetListSingle = [] # List for AN individual in and out octet w/ timestamp
-            octetListSingle.append(n[3])  # In octet
-            octetListSingle.append(n[4])  # Out octet
-            octetListSingle.append(n[5])  # Timestamp
-            octetListTotal.append(octetListSingle) # Append an octet single, to the octet total list
-            
+            if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
+                # Octet data #
+                octetListSingle = [] # List for AN individual in and out octet w/ timestamp
+                octetListSingle.append(n[3])  # In octet
+                octetListSingle.append(n[4])  # Out octet
+                octetListSingle.append(n[5])  # Timestamp
+                octetListTotal.append(octetListSingle) # Append an octet single, to the octet total list
+            else:
+                print ("This customer has the same value as another, search with different criteria for now")
+                print ("This is the index value of omited customer: "+ n[0])
+
+
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
         print (customerList)
+
+
+
+    def nameCollision(self):
+        pass
 
 
 

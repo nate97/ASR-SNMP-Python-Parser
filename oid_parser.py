@@ -57,6 +57,7 @@ class OIDParser(CSVManager):
 
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
     def pollASR(self):
+        print ("Polling ASR...")
         ### Get OID strings ###
         descrOIDS = self.getOIDs(TYPEDESCR)
         statsINOIDS = self.getOIDs(TYPESTATSIN) # Disable temp
@@ -79,7 +80,7 @@ class OIDParser(CSVManager):
 
 
 
-    def getOIDs(self, OIDType):    # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
+    def getOIDs(self, OIDType): # Retrive a specific type of OID(s) ( Called to retrive list of OIDS from ASR, returns string from ASR )
         # Process our predefined global command and put our variables inside of it
         combinedCommand = SNMPCOMMAND % (self.SNMPCommunity, self.SNMPVersion, self.SNMPUrl, OIDType)
 
@@ -193,6 +194,7 @@ class OIDParser(CSVManager):
 
 
     def combOctetsDescr(self):
+        print ("Merging OIDS with SNMP walk data... ")
         for octetIndex in self.octetDict:
             for descrIndex in self.descrDict:
 

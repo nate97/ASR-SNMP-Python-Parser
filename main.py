@@ -20,6 +20,8 @@ ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access 
 class ASRDataExtractor(OIDParser):
 
     def __init__(self):
+        print ("GPON extractor application")
+        print ("Collecting data...")
 
         # Load OID parser
         OIDParser.__init__(self)
@@ -31,6 +33,7 @@ class ASRDataExtractor(OIDParser):
 
     def mainManager(self):
         while True:
+            print ("Running extractor... " + self.createFileTimestamp())
             self.OIDManager()  # Located in class OIDParser
 
             self.readGPONcsv(self.customerDict)
