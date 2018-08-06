@@ -4,16 +4,15 @@ import csv
 ### GLOBALS ###
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
-INDEXPHRASE = ' INDEX'
-PORTCHANPHRASE = ' PORTCHANNEL'
-VLANPHRASE = ' VLAN'
-INPHRASE = ' IN OCTET'
-OUTPHRASE = ' OUT OCTET'
-TIMEPHRASE = ' TIMESTAMP'
+HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
+              "Out octet", "Timestamp", "Network",
+              "ID", "Match", "Description",
+              "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
 
 # Folder locations #
 MANUALFOLDER = 'MANUAL_CSV/'
 GPONFOLDER = 'GPON_CSV/'
+
 
 
 class CSVManager():
@@ -86,8 +85,7 @@ class CSVManager():
             writeCSV = csv.writer(csvGPONcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            headerList = [INDEXPHRASE, PORTCHANPHRASE, VLANPHRASE, INPHRASE, OUTPHRASE, TIMEPHRASE, "NETWORK", "ID", "MATCH", "DESCRIPTION", "ONT"] # Needs to be placed in globals
-            writeCSV.writerow(headerList)
+            writeCSV.writerow(HEADERLIST)
 
             for customer in self.customerList:
                 tempList = []
@@ -117,6 +115,8 @@ class CSVManager():
                 tempList.append(match)
                 tempList.append(descr)
                 tempList.append(ont)
+                tempList.append(' ') # linkedPort
+                tempList.append(' ') # IP address
 
                 writeCSV.writerow(tempList)
 

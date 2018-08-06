@@ -108,12 +108,10 @@ class AECSVManager():
                         csvList.append('') # ONT
                         csvList.append(linkedPort)
                         csvList.append(ipAddr)
-                        #print (linkedPort)
 
                         self.customerList.append(csvList)
         # Close the AE csv file
         csvAE.close()
-        #print (self.customerList)
 
 
 
@@ -134,7 +132,7 @@ class AECSVManager():
     def calculateSTag(self, region):
         if region in REGIONDICT: # Region is valid and in our GLOBAL region dictionary
             regionCode = REGIONDICT[region]
-            print (regionCode)
+            #print (regionCode)
         else: # Region was not in dictionary, throw an error to user
             print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
             regionCode = None
