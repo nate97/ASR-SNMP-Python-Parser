@@ -2,9 +2,6 @@ import os
 import time
 import csv
 
-from csv_manager import CSVManager
-
-
 ### GLOBALS ###
 
 # COMMANDS #
@@ -28,7 +25,7 @@ INPHRASE = ' IN'
 OUTPHRASE = ' OUT'
 TIMEPHRASE = ' TIMESTAMP'
 
-class OIDParser(CSVManager):
+class OIDParser():
 
     def __init__(self):
         pass
@@ -57,7 +54,7 @@ class OIDParser(CSVManager):
 
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
     def pollASR(self):
-        print ("Polling ASR...")
+        print ("POLLING ASR")
         ### Get OID strings ###
         descrOIDS = self.getOIDs(TYPEDESCR)
         statsINOIDS = self.getOIDs(TYPESTATSIN) # Disable temp
@@ -194,7 +191,7 @@ class OIDParser(CSVManager):
 
 
     def combOctetsDescr(self):
-        print ("Merging OIDS with SNMP walk data... ")
+        print ("MERGING DATA & OIDS")
         for octetIndex in self.octetDict:
             for descrIndex in self.descrDict:
 

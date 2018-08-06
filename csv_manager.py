@@ -18,7 +18,7 @@ GPONFOLDER = 'GPON_CSV/'
 class CSVManager():
 
     def __init__(self):
-        print ('GPON CSV Manager...')
+        print ('GPON CSV Manager')
 
 
 
@@ -77,7 +77,7 @@ class CSVManager():
 
     # Exports combined ASR GPON CSV files
     def exportGPONCustomerData(self):
-        print ("Exporing GPON csv data...")
+        print ("EXPORTING GPON DATA!")
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 

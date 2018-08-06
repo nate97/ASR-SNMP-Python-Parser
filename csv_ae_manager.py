@@ -34,7 +34,7 @@ class AECSVManager():
 
 
     def __init__(self):
-        print ("AE CSV Manager...")
+        print ("AE CSV Manager")
 
 
 
@@ -134,7 +134,7 @@ class AECSVManager():
             regionCode = REGIONDICT[region]
             #print (regionCode)
         else: # Region was not in dictionary, throw an error to user
-            print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
+            #print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
             regionCode = None
 
         return regionCode
@@ -143,6 +143,7 @@ class AECSVManager():
 
     # Exports combined ASR AE CSV files
     def exportAECustomerData(self):
+        print ("EXPORTING ACTIVE-E DATA!")
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 
@@ -155,7 +156,6 @@ class AECSVManager():
 
             for customer in self.customerList:
                 tempList = []
-
 
                 # This is stupid, should just do this all in one go and comment what pieces are what.
                 index = customer[0]

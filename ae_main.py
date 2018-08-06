@@ -21,7 +21,7 @@ ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access 
 class AEManager(OIDParser, AECSVManager):
 
     def __init__(self):
-        print ("AE extractor...")
+        print ("Active E: ")
 
         self.getCredentials()
         self.OIDManager()  # Located in class OIDParser
