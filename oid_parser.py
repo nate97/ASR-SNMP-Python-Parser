@@ -10,8 +10,8 @@ SNMPCOMMAND = 'snmpwalk -Os -c %s -v %s %s %s' # community, version, URL, OID
 # OID TYPES #
 TYPEINDEX = 'ifIndex'
 TYPEDESCR = 'ifDescr'
-TYPESTATSIN = 'ipIfStatsInOctets'
-TYPESTATSOUT = 'ipIfStatsOutOctets'
+TYPESTATSIN = 'ipIfStatsHCInOctets' # Change these as neccessary in the future for higher bandwidth
+TYPESTATSOUT = 'ipIfStatsHCOutOctets'
 
 # VALID PORTCHANNEL TYPES #
 PORTCHANNEL10 = 'Port-channel10'
@@ -49,7 +49,6 @@ class OIDParser():
 
         # Polls the ASR once
         self.pollASR()
-
 
 
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
@@ -180,14 +179,20 @@ class OIDParser():
         for oidIndex in self.octetInDict:
             singleOid = []
 
-            singleOid.append(self.octetInDict.get(oidIndex))
-            singleOid.append(self.octetOutDict.get(oidIndex))
+
+            inOct = self.octetInDict.get(oidIndex)
+            outOct = self.octetOutDict.get(oidIndex)
+
+            inMb = self.octetToMb(int(inOct))
+            outMb = self.octetToMb(int(outOct))
+
+            singleOid.append(str(inMb))
+            singleOid.append(str(outMb))
 
             # Special case, append time stamp, doesn't need to be precise, but it is useful to have this
             singleOid.append(str(self.createTimestamp())) # Time stamp is seconds from EPOCH
 
             self.octetDict[oidIndex] = (singleOid)
-
 
 
     def combOctetsDescr(self):

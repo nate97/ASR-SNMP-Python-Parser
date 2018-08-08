@@ -1,4 +1,0 @@
-6455,Port-channel11,8052302,3408495176,640424102,1533565319.3954995,Cave In Rock,2-1-3-124,Cave In Rock-124,Thomas And Beverly Neumann,1-3-124, , 
-6504,Port-channel11,8052419,2236755754,1268924701,1533565319.38867,Cave In Rock,2-1-3-353,Cave In Rock-353,Thomas And Beverly Neumann,1-3-353, , 
-6455,Port-channel11,8052302,3408556673,640436000,1533565348.141639,Cave In Rock,2-1-3-124,Cave In Rock-124,Thomas And Beverly Neumann,1-3-124, , 
-6504,Port-channel11,8052419,2236762225,1268933076,1533565348.135467,Cave In Rock,2-1-3-353,Cave In Rock-353,Thomas And Beverly Neumann,1-3-353, , 

@@ -64,6 +64,7 @@ class searchManager():
                 customerList.append(n[11]) # PortChannel
                 customerList.append(n[12]) # IP Address
 
+            # Make sure we only retrive the data from a single customer
             if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
                 # Octet data #
                 octetListSingle = [] # List for AN individual in and out octet w/ timestamp

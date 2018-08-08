@@ -1,6 +1,7 @@
 import time
 import csv
 
+
 ### GLOBALS ###
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
@@ -10,16 +11,16 @@ HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
               "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
 
 # Folder locations #
-MANUALFOLDER = 'MANUAL_CSV/'
-GPONFOLDER = 'GPON_CSV/'
+MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
+EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export our completed CSV files to
 
-
+# Exported file names #
+GPONFILENAME = '%sgp-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
 
 class CSVManager():
 
     def __init__(self):
-        print ('GPON CSV Manager')
-
+        pass
 
 
     # Read GPON csv, export combined data
@@ -74,15 +75,17 @@ class CSVManager():
         csvGPON.close()
 
 
-
     # Exports combined ASR GPON CSV files
     def exportGPONCustomerData(self):
         print ("EXPORTING GPON DATA!")
-        # Get current time to append to file name.
-        time = self.createFileTimestamp()
+
+        time = self.createFileTimestamp() # Get current time to append to file name.
+
+        openFileStr = GPONFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
+        print (openFileStr)
 
         # Create a CSV file to put our merged data from GPON and ASR in
-        with open(GPONFOLDER + 'gpon-customer-data-' + time + '.csv', 'w') as csvGPONcustomer:
+        with open(openFileStr, 'w') as csvGPONcustomer:
             writeCSV = csv.writer(csvGPONcustomer)
 
             # This is just for human readability, adds headers to the CSV file
@@ -123,3 +126,4 @@ class CSVManager():
 
         # Close our merged ASR, GPON CSV file
         csvGPONcustomer.close()
+

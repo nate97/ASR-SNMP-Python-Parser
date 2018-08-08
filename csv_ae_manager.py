@@ -1,13 +1,8 @@
 import time
 import csv
 
-### GLOBALS ###
 
-# PHRASES TO APPEND TO DATA ( For readability ) #
-HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
-              "Out octet", "Timestamp", "Network",
-              "ID", "Match", "Description",
-              "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
+### GLOBALS ###
 
 # This is for calculating the cTag based off of the customers region for Active E #
 REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
@@ -24,18 +19,22 @@ REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
     "Anna": "1705",
     "Vienna": "1805" }
 
-# Folder locations #
-MANUALFOLDER = 'MANUAL_CSV/'
-AEFOLDER = 'AE_CSV/'
+# PHRASES TO APPEND TO DATA ( For readability ) #
+HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
+              "Out octet", "Timestamp", "Network",
+              "ID", "Match", "Description",
+              "ONT", "LinkedPort", "IP address"] # This list is for human readability. If someone manually opens an exported CSV file it will have headers.
 
+# Folder locations #
+MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
+EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export our completed CSV files to
 
 
 class AECSVManager():
 
 
     def __init__(self):
-        print ("AE CSV Manager")
-
+        pass
 
 
     # Read AE csv, export combined data
@@ -114,7 +113,6 @@ class AECSVManager():
         csvAE.close()
 
 
-
     # Calculates our Ctag with formula from the linkedPort data for customer, used for vlan
     def calculateCTag(self, linkedPort):
         lPort = linkedPort.split("-")
@@ -125,7 +123,6 @@ class AECSVManager():
             cTag = "0" + cTag
 
         return cTag
-
 
 
     # Calculates Stag based off of region customer is located in, used for vlan
@@ -140,7 +137,6 @@ class AECSVManager():
         return regionCode
 
 
-
     # Exports combined ASR AE CSV files
     def exportAECustomerData(self):
         print ("EXPORTING ACTIVE-E DATA!")
@@ -148,7 +144,7 @@ class AECSVManager():
         time = self.createFileTimestamp()
 
         # Create a CSV file to put our merged data from AE and ASR in
-        with open(AEFOLDER + 'ae-customer-data-' + time + '.csv', 'w') as csvAEcustomer:
+        with open(EXPORTFOLDER + 'ae-customer-data-' + time + '.csv', 'w') as csvAEcustomer:
             writeCSV = csv.writer(csvAEcustomer)
 
             # This is just for human readability, adds headers to the CSV file
@@ -192,5 +188,4 @@ class AECSVManager():
 
         # Close our merged ASR, GPON CSV file
         csvAEcustomer.close()
-
 

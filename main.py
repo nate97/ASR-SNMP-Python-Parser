@@ -18,26 +18,21 @@ CREDENTIALSFILE = 'credentials.yaml' # File contains all credentials of machines
 # Heading keys #
 ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
 
-# Time delay before we poll ASR
+# Time delay before we poll ASR #
 DELAY = 1 # In seconds
 
 
 class ASRDataExtractor(OIDParser, CSVManager, AECSVManager):
 
     def __init__(self):
-        print ("GPON and AE extration script!")
-
-        # Load OID parser
-        OIDParser.__init__(self)
+        print ("Application ran at: " + self.createFileTimestamp())
 
         self.getCredentials()
-
         self.mainManager()
 
 
     def mainManager(self):
         while True:
-            print ("Extractor application: " + self.createFileTimestamp())
             self.OIDManager()  # Located in class OIDParser
             self.readGPONcsv(self.customerDict)
             self.exportGPONCustomerData()
@@ -94,6 +89,11 @@ class ASRDataExtractor(OIDParser, CSVManager, AECSVManager):
         date = datetime.datetime.now()
         filetimestamp = date.strftime("%Y-%m-%d-%H%M%S")
         return filetimestamp
+
+
+    def octetToMb(self, octet):
+        mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer
+        return mb
 
 
 ASRDataExtractor()

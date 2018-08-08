@@ -106,11 +106,8 @@ venv.bak/
 # Custom credential file
 credentials.yaml
 
-# Exported GPON data
-GPON_CSV/
-
-# Exported AE data
-AE_CSV/
+# Exported customer data CSVs
+CUSTOMER_DATA_CSV
 
 # Reference CSV files 
 MANUAL_CSV/
