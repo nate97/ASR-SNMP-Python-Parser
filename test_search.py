@@ -3,6 +3,9 @@ import argparse
 import datetime
 import os
 
+import matplotlib.pyplot as plt
+
+
 ### GLOBALS ###
 
 # Directorys and file extensions #
@@ -17,6 +20,7 @@ SEARONT = '--ont'
 SEARID = '--id'
 SEARINDEX = '--index'
 
+
 # This script will allow you to search through all of the historical data collected on customers bandwidth usage
 class searchManager():
 
@@ -26,12 +30,10 @@ class searchManager():
         self.argsManager()
 
 
-
     def grepCommand(self, name):
         command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
 
         subprocess.call(command, shell=True)
-
 
 
     def grepParser(self):
@@ -85,16 +87,14 @@ class searchManager():
 
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
-        print (customerList)
-
+        #print (customerList)
+        self.graph(customerList)
 
 
     def nameCollision(self, staticIndex, customerIndex):
         if customerIndex != staticIndex:
             print ("This customer has the same value as another, search using different criteria.")
             print ("This is the index value of omited customer: " + customerIndex)
-
-
 
 
     def argsManager(self):
@@ -107,7 +107,6 @@ class searchManager():
         args = parser.parse_args()
 
         self.searchSwitch(args)
-
 
 
     # Simple switch for the type of data user is searching for
@@ -128,11 +127,57 @@ class searchManager():
         # Add new search fields here
 
 
-
     def searchCustomers(self, name):
         self.grepCommand(name)
         self.grepParser()
 
+
+    def graph(self, customerList):
+
+
+        inUsageL = []
+        timeL = []
+
+        oc = 0
+        fst = True
+
+        for uu in customerList[10]:
+
+
+
+            oc += 1
+            if oc <= 1:
+                inUsage = (uu[0])
+                time = (float(uu[2]))
+
+                inUsageL.append(int(inUsage))
+
+                if not fst:
+                    time = datetime.datetime.fromtimestamp(time).strftime('%H:%M')
+                    timeL.append(time)
+
+                fst = False
+
+                oc = 0
+
+
+            print ("yes")
+
+        print (inUsageL)
+        inUsageLs = [inUsageL[i + 1] - inUsageL[i] for i in range(len(inUsageL) - 1)]
+
+        print (inUsageLs)
+        print (timeL)
+
+        fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
+
+        ax.grid(color='b', linestyle='-', linewidth=1)
+        fig.set_size_inches(20.0, 15.0, forward=True)
+
+
+        ax.plot(timeL, inUsageLs)
+        fig.savefig('graph_usage.png')  # save the figure to file
+        plt.close(fig)  # close the figure
 
 
 searchManager()

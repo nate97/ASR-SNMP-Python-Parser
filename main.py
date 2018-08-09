@@ -93,7 +93,7 @@ class ASRDataExtractor(OIDParser, GPONManager, AEManager):
 
     def octetToMb(self, octet):
         mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
-        return mb
+        return octet
 
 
 ASRDataExtractor()
