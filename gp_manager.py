@@ -17,7 +17,7 @@ EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export
 # Exported file names #
 GPONFILENAME = '%sgp-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
 
-class CSVManager():
+class GPONManager():
 
     def __init__(self):
         pass
@@ -82,7 +82,6 @@ class CSVManager():
         time = self.createFileTimestamp() # Get current time to append to file name.
 
         openFileStr = GPONFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
-        print (openFileStr)
 
         # Create a CSV file to put our merged data from GPON and ASR in
         with open(openFileStr, 'w') as csvGPONcustomer:

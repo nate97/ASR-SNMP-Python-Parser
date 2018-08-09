@@ -1,16 +1,18 @@
 import subprocess
 import argparse
+import datetime
 import os
 
 ### GLOBALS ###
 
 # Directorys and file extensions #
-GPONDIRECTORY = 'GPON_CSV/'
+GPONDIRECTORY = 'CUSTOMER_DATA_CSV/'
 CSVEXTENS = '.csv'
 TEMPFILE = 'temp.txt'
 
 # SEARCH ARGS #
 SEARNAME = '--name'
+SEARVLAN = '--vlan'
 SEARONT = '--ont'
 SEARID = '--id'
 SEARINDEX = '--index'
@@ -26,7 +28,7 @@ class searchManager():
 
 
     def grepCommand(self, name):
-        command = "fgrep -h '%s' GPON_CSV/* > %s" % (name, TEMPFILE)
+        command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
 
         subprocess.call(command, shell=True)
 
@@ -71,6 +73,10 @@ class searchManager():
                 octetListSingle.append(n[3])  # In octet
                 octetListSingle.append(n[4])  # Out octet
                 octetListSingle.append(n[5])  # Timestamp
+
+                #dTime = datetime.datetime.fromtimestamp(float(n[5])).strftime('%c')
+                #octetListSingle.append(dTime)  # Timestamp
+
                 octetListTotal.append(octetListSingle) # Append an octet single, to the octet total list
             else:
                 print ("This customer has the same value as another, search with different criteria for now")
@@ -83,14 +89,18 @@ class searchManager():
 
 
 
-    def nameCollision(self):
-        pass
+    def nameCollision(self, staticIndex, customerIndex):
+        if customerIndex != staticIndex:
+            print ("This customer has the same value as another, search using different criteria.")
+            print ("This is the index value of omited customer: " + customerIndex)
+
 
 
 
     def argsManager(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
+        parser.add_argument(SEARVLAN, help="Search for customer with VLAN tag")
         parser.add_argument(SEARONT, help="Search for customer with ONT")
         parser.add_argument(SEARID, help="Search for customer with ID")
         parser.add_argument(SEARINDEX, help="Search for customer with ASR index value")
@@ -102,8 +112,13 @@ class searchManager():
 
     # Simple switch for the type of data user is searching for
     def searchSwitch(self, inputArgs):
+
+        print (inputArgs)
+
         if inputArgs.name:
             self.searchCustomers(inputArgs.name)
+        if inputArgs.vlan:
+            self.searchCustomers(inputArgs.vlan)
         if inputArgs.ont:
             self.searchCustomers(inputArgs.ont)
         if inputArgs.id:

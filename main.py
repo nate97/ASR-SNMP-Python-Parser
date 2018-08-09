@@ -6,8 +6,8 @@ import os
 import yaml
 
 from oid_parser import OIDParser
-from csv_manager import CSVManager
-from csv_ae_manager import AECSVManager
+from gp_manager import GPONManager
+from ae_manager import AEManager
 
 
 ### GLOBALS ###
@@ -22,7 +22,7 @@ ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access 
 DELAY = 1 # In seconds
 
 
-class ASRDataExtractor(OIDParser, CSVManager, AECSVManager):
+class ASRDataExtractor(OIDParser, GPONManager, AEManager):
 
     def __init__(self):
         print ("Application ran at: " + self.createFileTimestamp())
@@ -92,7 +92,7 @@ class ASRDataExtractor(OIDParser, CSVManager, AECSVManager):
 
 
     def octetToMb(self, octet):
-        mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer
+        mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
         return mb
 
 

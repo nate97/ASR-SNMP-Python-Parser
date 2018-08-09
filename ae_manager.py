@@ -30,7 +30,7 @@ MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
 EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export our completed CSV files to
 
 
-class AECSVManager():
+class AEManager():
 
 
     def __init__(self):
@@ -101,10 +101,10 @@ class AECSVManager():
                         csvList.append(timeStamp)
 
                         csvList.append(region)
-                        csvList.append('') # ID1
-                        csvList.append('') # Match1
+                        csvList.append(' ') # ID1
+                        csvList.append(' ') # Match1
                         csvList.append(descr)
-                        csvList.append('') # ONT
+                        csvList.append(' ') # ONT
                         csvList.append(linkedPort)
                         csvList.append(ipAddr)
 
