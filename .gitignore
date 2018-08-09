@@ -106,6 +106,9 @@ venv.bak/
 # Custom credential file
 credentials.yaml
 
+# Temp file
+temp.txt
+
 # Exported customer data CSVs
 CUSTOMER_DATA_CSV
 
