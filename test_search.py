@@ -4,6 +4,7 @@ import datetime
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 ### GLOBALS ###
@@ -21,6 +22,7 @@ SEARID = '--id'
 SEARINDEX = '--index'
 
 
+
 # This script will allow you to search through all of the historical data collected on customers bandwidth usage
 class searchManager():
 
@@ -30,10 +32,12 @@ class searchManager():
         self.argsManager()
 
 
+
     def grepCommand(self, name):
         command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
 
         subprocess.call(command, shell=True)
+
 
 
     def grepParser(self):
@@ -84,17 +88,20 @@ class searchManager():
                 print ("This customer has the same value as another, search with different criteria for now")
                 print ("This is the index value of omited customer: "+ n[0])
 
-
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
         #print (customerList)
-        self.graph(customerList)
+        with plt.style.context('ggplot'):
+            self.graph(customerList)
+
 
 
     def nameCollision(self, staticIndex, customerIndex):
         if customerIndex != staticIndex:
             print ("This customer has the same value as another, search using different criteria.")
             print ("This is the index value of omited customer: " + customerIndex)
+
+
 
 
     def argsManager(self):
@@ -107,6 +114,7 @@ class searchManager():
         args = parser.parse_args()
 
         self.searchSwitch(args)
+
 
 
     # Simple switch for the type of data user is searching for
@@ -127,57 +135,129 @@ class searchManager():
         # Add new search fields here
 
 
+
     def searchCustomers(self, name):
         self.grepCommand(name)
         self.grepParser()
 
 
+
     def graph(self, customerList):
 
-
-        inUsageL = []
+        outUsage = []
         timeL = []
 
-        oc = 0
-        fst = True
+        timeSeconds = []
+
+        firstSample = True
 
         for uu in customerList[10]:
+            outOctet = (int(uu[1]))
+            outOctet = self.octetToMb(outOctet)
+            time = (float(uu[2]))
+
+            outUsage.append(outOctet)
+
+            if not firstSample:
+                # Visual data
+                timeStr = datetime.datetime.fromtimestamp(time).strftime('%H:%M')
+                timeL.append(timeStr)
+
+            # Seconds
+            timeSeconds.append(time)
+
+            firstSample = False
 
 
 
-            oc += 1
-            if oc <= 1:
-                inUsage = (uu[0])
-                time = (float(uu[2]))
-
-                inUsageL.append(int(inUsage))
-
-                if not fst:
-                    time = datetime.datetime.fromtimestamp(time).strftime('%H:%M')
-                    timeL.append(time)
-
-                fst = False
-
-                oc = 0
+        outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
+        timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
 
 
-            print ("yes")
+        #print (outUsageDiff)
 
-        print (inUsageL)
-        inUsageLs = [inUsageL[i + 1] - inUsageL[i] for i in range(len(inUsageL) - 1)]
+        sortedUsageDiff = sorted(outUsageDiff)
+        length = len(sortedUsageDiff)
 
-        print (inUsageLs)
-        print (timeL)
+
+        calcC = round((length * 0.95))
+
+        #print (sortedUsageDiff[calcC])
+        #print (sortedUsageDiff)
+
+
+
+
+        bpsList = []
+        count = len(outUsageDiff)
+
+
+        for x in range(0, count):
+            dataSample = outUsageDiff[x]
+            timePeriod = timeDiff[x]
+
+            bitsPerSec = dataSample / timePeriod
+
+            bpsList.append(bitsPerSec)
+
+
+        #print (timeL)
 
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
+        fig.set_size_inches(20, 10.0, forward=True)
 
-        ax.grid(color='b', linestyle='-', linewidth=1)
-        fig.set_size_inches(20.0, 15.0, forward=True)
+        plt.ylabel('Log of Bits Per Second')
+        plt.xlabel('Time')
+
+        #ax.plot(timeL, bpsList, marker='o', markevery=9)
+        ax.plot(timeL, bpsList)
+
+        locs, labels = plt.xticks()
+        labelList = self.removeEveryOther(locs)
 
 
-        ax.plot(timeL, inUsageLs)
+        plt.xticks(labelList)
+
         fig.savefig('graph_usage.png')  # save the figure to file
         plt.close(fig)  # close the figure
+
+
+
+    def removeEveryOther(self, my_list):
+
+        length = len(my_list)
+        print (length)
+
+        cut = 1
+
+
+
+
+        if length > 50:
+            cut = 4
+
+        if length > 100:
+            cut = 8
+
+        if length > 200:
+            cut = 9
+
+        if length > 300:
+            cut = 11
+
+        if length > 400:
+            cut = 14
+
+        print (cut)
+
+        return my_list[::cut]
+
+
+
+    def octetToMb(self, octet):
+        mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
+        return mb
+
 
 
 searchManager()

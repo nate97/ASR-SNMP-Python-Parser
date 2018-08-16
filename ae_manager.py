@@ -30,6 +30,7 @@ MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
 EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export our completed CSV files to
 
 
+
 class AEManager():
 
 
