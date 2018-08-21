@@ -5,7 +5,7 @@ import os
 import csv
 
 
-# GLOBALS #
+### GLOBALS ###
 
 #### Variables for header names ####
 
@@ -17,9 +17,18 @@ ADMIN = " ADMIN "
 SUBSCRID = " SUBSCR-ID "
 DESCR = " DESCR "
 ONT = " ONT "
+ID = " ID "
+OUTTAG = " OUT-TAG "
+INTAG = " IN-TAG "
+TAGACTION = " TAG-ACTION "
+BWPROF = " BW-PROF "
+MCASTPROF = " MCAST-PROF "
 
-# File paths
+# File paths #
 FIXEDPATH = ""
+
+# HEADER #
+HEADER = ""
 
 
 class gponCreator():
@@ -27,18 +36,16 @@ class gponCreator():
     def __init__(self):
         print ("CMS file combiner")
 
+        # Figure out which columns the required data is located at
         self.headerKeysGE = self.getColumnPosition("combine_gpon/gpon_ont_ge.csv") # Calculate index values for header names
         self.headerKeysDATA = self.getColumnPosition("combine_gpon/gpon_data.csv") # Calculate index values for header naems
 
+        # This is to remove the unneccessary lines from our CSV files!
         self.externalProcess("awk 'NR>2' combine_gpon/gpon_ont_ge.csv > combine_gpon/gpon_ont_ge_fixed.csv") # Remove first two lines of CSV
         self.externalProcess("awk 'NR>2' combine_gpon/gpon_data.csv > combine_gpon/gpon_data_fixed.csv") # Remove first two lines of CSV
 
-        self.CSVOpener("combine_gpon/gpon_ont_ge_fixed.csv", "combine_gpon/gpon_data_fixed.csv") # Open both CSV files to be merged
-
-
-
-    def externalProcess(self, command):
-        subprocess.call(command, shell=True)
+        # Function merges the two provided CSV files
+        self.CSVCombiner("combine_gpon/gpon_ont_ge_fixed.csv", "combine_gpon/gpon_data_fixed.csv") # Open both CSV files to be merged
 
 
 
@@ -60,19 +67,19 @@ class gponCreator():
 
 
 
-    def CSVOpener(self, file1, file2):
-        file1 = open(file1, 'r')
-        file2 = open(file2, 'r')
+    def CSVCombiner(self, file1, file2):
+        # First variable is the opened file in python, the second variable is the python CSV pointer ( these are important )
+        newReader1, newFile1 = self.openCSV("GPON.csv", "w") # File to write to
+        csvFileReader1, csvFile1 = self.openCSV(file1, "r")
+        csvFileReader2, csvFile2 = self.openCSV(file2, "r")
 
-        c1 = csv.reader(file1, delimiter=',')
-        c2 = csv.reader(file2, delimiter=',')
+        mergedData = [] # Where all of our merged data from each file goes
 
-        mergedData = [] # Where all of our merged data goes ( FOR NOW )
-        file1List = [] # Place all valid date from first csv file in here
-        file2List = [] # Place all valid data from second csv file in here
+        # Convert both of our files into a list so we can easily iterate over their data
+        file1List = self.file2List(csvFileReader1)
+        file2List = self.file2List(csvFileReader2)
 
-
-        for rowsGE in c1: ##### GE File ##### FIRST FILE
+        for rowsGE in file1List: ##### GE File ##### FIRST FILE
             regionGE = rowsGE[self.headerKeysGE[REGION]]  # Extract position of region from headerKeysGE
             descrGE = rowsGE[self.headerKeysGE[DESCR]]
             idGE = rowsGE[self.headerKeysGE[ONT]]
@@ -85,29 +92,69 @@ class gponCreator():
             if idGE == " ":
                 continue
 
-            for rowsDATA in c2: ##### Data File ##### SECOND FILE
+            for rowsDATA in file2List: ##### Data File ##### SECOND FILE
                 regionData = rowsDATA[self.headerKeysDATA[REGION]]
                 descrData = rowsDATA[self.headerKeysDATA[DESCR]]
                 idData = rowsDATA[self.headerKeysDATA[ID]]
+                octetOutData = rowsDATA[self.headerKeysDATA[INTAG]]
 
                 ##### IGNORE THE JUNK DATA #####
                 if regionData == " ":
                     continue
                 if idData == " ":
                     continue
+                if octetOutData == "Not Used": # THIS MIGHT NOT BE THE CORRECT THING TODO!!!
+                    continue
 
+                # Special case that formats our data correctly
                 idData = self.IDCorrector(idData) # Correct the format of the data in ID column
 
-
                 # IF we have a collision, continue
-                if idGE == idData and idGE == idData:
-                    print ("Collision")
-                    # Append all of our collided data HERE
+                if regionGE == regionData and idGE == idData: # If we have a match on a single line ( IN BOTH FILES ) we will merge that data
+                    #print ("Collision")
 
-                    #.append
+                    collidedDataList = [] # This is the list we append our collided data from the two files into, one is generated for EACH customer
+
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[NETWORK]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[BWPROF]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[OUTTAG]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[INTAG]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[MCASTPROF]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[ID]])
+                    collidedDataList.append(rowsGE[self.headerKeysGE[DESCR]]) # GE
+                    collidedDataList.append(rowsGE[self.headerKeysGE[ONT]]) # GE
+
+                    #print (collidedDataList)
+                    mergedData.append(collidedDataList)
+
+        # Crappy solution to export data to the new CSV file
+        for data in mergedData:
+            print (data)
+            stringy = ",".join(data)
+            newFile1.write(stringy + "\n")
 
 
 
+    # Opens a provided file and then opens the file with CSV reader
+    def openCSV(self, filename, openType):
+        fileObject = open(filename, openType)
+        csvReaderObject = csv.reader(fileObject, delimiter=',')
+        return csvReaderObject, fileObject
+
+
+
+    # Iterates over every line in file and places them into a list
+    def file2List(self, filename):
+        fileList = []  # Place all valid data from csv file in here
+
+        for line in filename:
+            fileList.append(line) # Append our line list to a static list
+
+        return fileList
+
+
+
+    # Removes extraneous garbage off of ID field FROM the (DATA) file
     def IDCorrector(self, ID):
         correctedID = ID # Default failover
 
@@ -121,6 +168,12 @@ class gponCreator():
              pass
 
         return correctedID
+
+
+
+    # Runs external bash commands
+    def externalProcess(self, command):
+        subprocess.call(command, shell=True)
 
 
 
