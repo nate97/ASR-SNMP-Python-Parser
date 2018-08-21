@@ -94,9 +94,9 @@ class GponCombiner():
                 id = id[0]
                 try:
                     id2 = id.split("-", 1)
-                    test = (id2[1])
+                    correctedID = (id2[1])
 
-                    regionAndID = [region + ":" + test] # Create new individual column list
+                    regionAndID = [region + ":" + correctedID] # Create new individual column list
                     row = regionAndID + row # Append new data to our row list
                     gponDataList.append(row)
 
@@ -111,14 +111,11 @@ class GponCombiner():
 
     def repeats(self):
 
+        self.NEWgponGeList = self.remove_duplicates(self.gponGeList)
+
+        self.NEWgponDataList = self.remove_duplicates(self.gponDataList)
+
         self.findMatch()
-
-        new1 = self.remove_duplicates(self.gponGeList)
-
-        gponData2 = self.remove_duplicates(self.gponDataList)
-
-        #for x in new1:
-            #print (x[0])
 
 
 
@@ -132,56 +129,53 @@ class GponCombiner():
 
         newCSVLines = []
 
-        for d in self.gponGeList:
+        for GEGpon in self.NEWgponGeList:
 
-            for a in self.gponDataList:
+            for GEData in self.NEWgponDataList:
 
-                if d[0] in a[0]:
+                if GEGpon[0] in GEData[0]:
 
-                    print (d)
-                    print (d[0])
-                    print (d[1])
-                    print (d[2])
-                    print (d[3])
-                    print (d[4])
-                    print (d[5])
-                    print (d[6])
-                    print (d[7])
-                    print ("|||||||||||||||||||||||||||||||||")
+                    csvLine = []
 
-                    print (a[3])
-                    print (a[4])
-                    print (a[5])
-                    print (a[6])
-                    print (a[7])
+                    #print (GEData)
+                    #print (GEGpon)
 
-                    print (a)
+                    """
+                    print (GEData[1])  # Region
+                    print (GEData[2])  # Network
+                    print (GEData[3])  # Descr ( UNUSED )
+                    print (GEData[4])  # TAG-ACTION
+                    print (GEData[5])  # BW-PROF
+                    print (GEData[6])  # OUT-TAG
+                    print (GEData[7])  # IN-TAG
+                    print (GEData[8])  # MCAST-PROF
+                    print (GEData[9])  # ID
 
-                    newCSVLines.append(d[0])
-                    newCSVLines.append(d[1])
-                    newCSVLines.append(d[2])
-                    newCSVLines.append(d[3])
-                    newCSVLines.append(d[4])
-                    newCSVLines.append(d[5])
-                    newCSVLines.append(d[6])
-                    newCSVLines.append(d[7])
+                    print (GEGpon[1])  # Region
+                    print (GEGpon[2])  # Network
+                    print (GEGpon[3])  # ID
+                    print (GEGpon[4])  # intf
+                    print (GEGpon[5])  # admin
+                    print (GEGpon[6])  # Subscr
+                    print (GEGpon[7])  # Descr ( USED )"""
 
-                    newCSVLines.append(a[3])
-                    newCSVLines.append(a[4])
-                    newCSVLines.append(a[5])
-                    newCSVLines.append(a[6])
-                    newCSVLines.append(a[7])
 
-        # WORKS!!!!! DON'T DELETE THIS COMM                    newCSVLines.append(a[])ENT!!!!!!!!!! USED AS REFERENCE!!!!!!!!!!!
-        """
-        for x in range(0, len(self.gponGeList)):
-            try:
-                if "Cave In Rock:1-1-94" in self.gponDataList[x]:
-                    print ("In lists")
-            except:
-                pass
-                
-        """
+                    csvLine.append(GEData[1])
+                    csvLine.append(GEData[5])
+                    csvLine.append(GEData[6])
+                    csvLine.append(GEData[7])
+                    csvLine.append(GEData[8])
+                    csvLine.append(GEData[9])
+                    csvLine.append(GEGpon[7])
+
+
+
+
+                    newCSVLines.append(csvLine)
+
+        print (newCSVLines)
+        for x in newCSVLines:
+            print (x)
 
 
 
@@ -197,3 +191,5 @@ class GponCombiner():
 
 
 GponCombiner()
+
+

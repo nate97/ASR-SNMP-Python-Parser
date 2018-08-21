@@ -1,0 +1,129 @@
+import subprocess
+import datetime
+import time
+import os
+import csv
+
+
+# GLOBALS #
+
+#### Variables for header names ####
+
+REGION = " REGION "
+NETWORK = " NETWORK "
+ID = " ID "
+INTF = " INTF "
+ADMIN = " ADMIN "
+SUBSCRID = " SUBSCR-ID "
+DESCR = " DESCR "
+ONT = " ONT "
+
+# File paths
+FIXEDPATH = ""
+
+
+class gponCreator():
+
+    def __init__(self):
+        print ("CMS file combiner")
+
+        self.headerKeysGE = self.getColumnPosition("combine_gpon/gpon_ont_ge.csv") # Calculate index values for header names
+        self.headerKeysDATA = self.getColumnPosition("combine_gpon/gpon_data.csv") # Calculate index values for header naems
+
+        self.externalProcess("awk 'NR>2' combine_gpon/gpon_ont_ge.csv > combine_gpon/gpon_ont_ge_fixed.csv") # Remove first two lines of CSV
+        self.externalProcess("awk 'NR>2' combine_gpon/gpon_data.csv > combine_gpon/gpon_data_fixed.csv") # Remove first two lines of CSV
+
+        self.CSVOpener("combine_gpon/gpon_ont_ge_fixed.csv", "combine_gpon/gpon_data_fixed.csv") # Open both CSV files to be merged
+
+
+
+    def externalProcess(self, command):
+        subprocess.call(command, shell=True)
+
+
+
+    def getColumnPosition(self, filename):
+        fileA = open(filename) # Open file
+        lines = fileA.readlines() # Read file
+
+        # List currating
+        headerKeys = lines[1].split(",") # Split the second line of csv file into a list
+        del headerKeys[-1] # Deletes last item of list, THIS SHOULD BE THE NEW LINE DELIMITER (\n)
+        columnCount = len(headerKeys) # Get the count of items in headerKeys
+
+        # Column name to position
+        headerConverter = {} # IMPORTANT # This is where we place our keys and values into, example: position 5 is the ID header.
+        for y in range(0, columnCount): # Iterates over amount of items in columnCount
+            headerConverter[headerKeys[y]] = y # Appends the header name as the key, and the value as the integer location of header
+
+        return headerConverter # Returns dictionary
+
+
+
+    def CSVOpener(self, file1, file2):
+        file1 = open(file1, 'r')
+        file2 = open(file2, 'r')
+
+        c1 = csv.reader(file1, delimiter=',')
+        c2 = csv.reader(file2, delimiter=',')
+
+        mergedData = [] # Where all of our merged data goes ( FOR NOW )
+        file1List = [] # Place all valid date from first csv file in here
+        file2List = [] # Place all valid data from second csv file in here
+
+
+        for rowsGE in c1: ##### GE File ##### FIRST FILE
+            regionGE = rowsGE[self.headerKeysGE[REGION]]  # Extract position of region from headerKeysGE
+            descrGE = rowsGE[self.headerKeysGE[DESCR]]
+            idGE = rowsGE[self.headerKeysGE[ONT]]
+
+            ##### IGNORE THE JUNK DATA #####
+            if descrGE == " ":
+                continue
+            if regionGE == " ":
+                continue
+            if idGE == " ":
+                continue
+
+            for rowsDATA in c2: ##### Data File ##### SECOND FILE
+                regionData = rowsDATA[self.headerKeysDATA[REGION]]
+                descrData = rowsDATA[self.headerKeysDATA[DESCR]]
+                idData = rowsDATA[self.headerKeysDATA[ID]]
+
+                ##### IGNORE THE JUNK DATA #####
+                if regionData == " ":
+                    continue
+                if idData == " ":
+                    continue
+
+                idData = self.IDCorrector(idData) # Correct the format of the data in ID column
+
+
+                # IF we have a collision, continue
+                if idGE == idData and idGE == idData:
+                    print ("Collision")
+                    # Append all of our collided data HERE
+
+                    #.append
+
+
+
+    def IDCorrector(self, ID):
+        correctedID = ID # Default failover
+
+        id = ID.split("-GE") # Remove the -GE
+        id = id[0] # Selects the correct string from previous statement
+
+        try:
+            id = id.split("-", 1) # Split the second dash
+            correctedID = (id[1]) # Select the correct string from previous statement
+        except:
+             pass
+
+        return correctedID
+
+
+
+gponCreator()
+
+
