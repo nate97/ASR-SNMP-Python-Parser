@@ -115,7 +115,7 @@ CUSTOMER_DATA_CSV
 # Reference CSV files 
 MANUAL_CSV/
 
-# Folder for combining CMS csv files
+# Folder for combining gpon CMS csv files
 combine_gpon/
 
 # PyCharm files
