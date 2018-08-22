@@ -19,7 +19,7 @@ CREDENTIALSFILE = 'credentials.yaml' # File contains all credentials of machines
 ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
 
 # Time delay before we poll ASR #
-DELAY = 1 # In seconds
+DELAY = 10 # In seconds
 
 
 class ASRDataExtractor(OIDParser, GPONManager, AEManager):
@@ -32,7 +32,7 @@ class ASRDataExtractor(OIDParser, GPONManager, AEManager):
 
 
     def mainManager(self):
-        while True:
+        while True: # This while statement should be removed when ready to have this script run as a CRON JOB
             self.OIDManager()  # Located in class OIDParser
             self.readGPONcsv(self.customerDict)
             self.exportGPONCustomerData()
