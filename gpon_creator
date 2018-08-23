@@ -3,7 +3,8 @@ import datetime
 import time
 import os
 import csv
-
+import argparse
+import os.path
 
 ### GLOBALS ###
 
@@ -11,7 +12,6 @@ import csv
 
 REGION = " REGION "
 NETWORK = " NETWORK "
-ID = " ID "
 INTF = " INTF "
 ADMIN = " ADMIN "
 SUBSCRID = " SUBSCR-ID "
@@ -25,27 +25,62 @@ BWPROF = " BW-PROF "
 MCASTPROF = " MCAST-PROF "
 
 # File paths #
-FIXEDPATH = ""
+FIXEDPATH = "combine_gpon/"
 
 # HEADER #
 HEADER = ""
+
+# FILE NAMES #
+EXPORTFILENAME = "GPON.csv"
+FILE1 = "gpon_ont_ge.csv"
+FILE2 = "gpon_data.csv"
 
 
 class gponCreator():
 
     def __init__(self):
-        print ("CMS file combiner")
+        print ("CMS GPON file combiner")
 
+        self.userInput()
+
+
+
+    def userInput(self):
+        print ("Enter name of your csv files, located in directory combine_gpon/")
+        self.file1 = input("(DEFAULT: gpon_ont_ge.csv) GE file: ")
+        self.file2 = input("(DEFAULT: gpon_data.csv) Data file: ")
+
+        if self.file1 == "" or self.file2 == "":
+            self.file1 = FILE1
+            self.file2 = FILE2
+
+        self.file1 = FIXEDPATH + self.file1
+        self.file2 = FIXEDPATH + self.file2
+
+        if os.path.exists(self.file1) and os.path.exists(self.file2):
+            pass
+        else:
+            print ("File(s) not found.")
+            return
+
+        self.file1Fixed = self.file1.split(".")[0] + "_fixed.csv"
+        self.file2Fixed = self.file2.split(".")[0] + "_fixed.csv"
+
+        self.mergeManager()
+
+
+
+    def mergeManager(self):
         # Figure out which columns the required data is located at
-        self.headerKeysGE = self.getColumnPosition("combine_gpon/gpon_ont_ge.csv") # Calculate index values for header names
-        self.headerKeysDATA = self.getColumnPosition("combine_gpon/gpon_data.csv") # Calculate index values for header naems
+        self.headerKeysGE = self.getColumnPosition(self.file1) # Calculate index values for header names
+        self.headerKeysDATA = self.getColumnPosition(self.file2) # Calculate index values for header naems
 
         # This is to remove the unneccessary lines from our CSV files!
-        self.externalProcess("awk 'NR>2' combine_gpon/gpon_ont_ge.csv > combine_gpon/gpon_ont_ge_fixed.csv") # Remove first two lines of CSV
-        self.externalProcess("awk 'NR>2' combine_gpon/gpon_data.csv > combine_gpon/gpon_data_fixed.csv") # Remove first two lines of CSV
+        self.externalProcess("awk 'NR>2' " + self.file1 + " > " + self.file1Fixed) # Remove first two lines of first CSV file, ( GE File )
+        self.externalProcess("awk 'NR>2' " + self.file2 + " > " + self.file2Fixed) # Remove first two lines of second CSV file, ( DATA File )
 
         # Function merges the two provided CSV files
-        self.CSVCombiner("combine_gpon/gpon_ont_ge_fixed.csv", "combine_gpon/gpon_data_fixed.csv") # Open both CSV files to be merged
+        self.CSVCombiner(self.file1Fixed, self.file2Fixed) # Open both CSV files to be merged
 
 
 
@@ -69,7 +104,7 @@ class gponCreator():
 
     def CSVCombiner(self, file1, file2):
         # First variable is the opened file in python, the second variable is the python CSV pointer ( these are important )
-        newReader1, newFile1 = self.openCSV("GPON.csv", "w") # File to write to
+        newReader1, newFile1 = self.openCSV(FIXEDPATH + EXPORTFILENAME, "w") # File to write to, defined in the global variables at the top
         csvFileReader1, csvFile1 = self.openCSV(file1, "r")
         csvFileReader2, csvFile2 = self.openCSV(file2, "r")
 
@@ -84,6 +119,7 @@ class gponCreator():
             descrGE = rowsGE[self.headerKeysGE[DESCR]]
             idGE = rowsGE[self.headerKeysGE[ONT]]
 
+            # FILTER #
             ##### IGNORE THE JUNK DATA #####
             if descrGE == " ":
                 continue
@@ -98,6 +134,7 @@ class gponCreator():
                 idData = rowsDATA[self.headerKeysDATA[ID]]
                 octetOutData = rowsDATA[self.headerKeysDATA[INTAG]]
 
+                # FILTER #
                 ##### IGNORE THE JUNK DATA #####
                 if regionData == " ":
                     continue
@@ -124,12 +161,10 @@ class gponCreator():
                     collidedDataList.append(rowsGE[self.headerKeysGE[DESCR]]) # GE
                     collidedDataList.append(rowsGE[self.headerKeysGE[ONT]]) # GE
 
-                    #print (collidedDataList)
                     mergedData.append(collidedDataList)
 
         # Crappy solution to export data to the new CSV file
         for data in mergedData:
-            print (data)
             stringy = ",".join(data)
             newFile1.write(stringy + "\n")
 

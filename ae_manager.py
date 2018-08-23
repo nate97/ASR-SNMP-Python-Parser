@@ -47,6 +47,7 @@ class AEManager():
             readCSV = csv.reader(csvAE, delimiter=',')
 
             for row in readCSV:
+                # FILTER #
                 # Bypasses any errors or useless data in CSV file #
                 if "AEONTID" in row[0] or "generated" in row[0]: # Skip the first two useless rows
                     continue
