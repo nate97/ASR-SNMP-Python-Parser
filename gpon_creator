@@ -82,13 +82,17 @@ class gponCreator():
         # Function merges the two provided CSV files
         self.CSVCombiner(self.file1Fixed, self.file2Fixed) # Open both CSV files to be merged
 
+        # Delete no longer neccessary temp files
+        self.externalProcess("rm " + self.file1Fixed)
+        self.externalProcess("rm " + self.file2Fixed)
+
 
 
     def getColumnPosition(self, filename):
         fileA = open(filename) # Open file
         lines = fileA.readlines() # Read file
 
-        # List currating
+        # Hederkey list curating
         headerKeys = lines[1].split(",") # Split the second line of csv file into a list
         del headerKeys[-1] # Deletes last item of list, THIS SHOULD BE THE NEW LINE DELIMITER (\n)
         columnCount = len(headerKeys) # Get the count of items in headerKeys

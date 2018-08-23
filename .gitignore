@@ -117,6 +117,7 @@ MANUAL_CSV/
 
 # Folder for combining gpon CMS csv files
 combine_gpon/
+combine_ae/
 
 # PyCharm files
 .idea/
