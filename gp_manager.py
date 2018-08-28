@@ -7,7 +7,7 @@ import csv
 # PHRASES TO APPEND TO DATA ( For readability ) #
 HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
               "Out octet", "Timestamp", "Network",
-              "ID", "Match", "Description",
+              "Speed Package","ID", "Description",
               "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
 
 # Folder locations #
@@ -35,16 +35,15 @@ class GPONManager():
                 csvList = []
 
                 network = (row[0])
+                speedPackage = (row[1])
 
                 oTag = (row[2])
                 iTag = (row[3])
-                gponVlan = (str(oTag) + str(iTag))
+                gponVlan = (str(oTag) + str(iTag)) # This merges our tags into single VLAN
 
-                ID1 = (row[5])
-                ID2 = (row[6])
-                match1 = (row[7])
-                descr =  (row[12])
-                ont = (row[13])
+                ID = (row[5])
+                descr =  (row[6])
+                ont = (row[7])
 
                 for x in customerDict.values():
 
@@ -65,8 +64,8 @@ class GPONManager():
                         csvList.append(timeStamp)
 
                         csvList.append(network)
-                        csvList.append(ID1)
-                        csvList.append(match1)
+                        csvList.append(speedPackage)
+                        csvList.append(ID)
                         csvList.append(descr)
                         csvList.append(ont)
 
@@ -101,8 +100,8 @@ class GPONManager():
                 timeStamp = customer[5]
 
                 network = customer[6]
-                ID = customer[7]
-                match = customer[8]
+                speedPackage = customer[7]
+                ID = customer[8]
                 descr = customer[9]
                 ont = customer[10]
 
@@ -114,8 +113,8 @@ class GPONManager():
                 tempList.append(timeStamp)
 
                 tempList.append(network)
+                tempList.append(speedPackage)
                 tempList.append(ID)
-                tempList.append(match)
                 tempList.append(descr)
                 tempList.append(ont)
                 tempList.append(' ') # linkedPort
