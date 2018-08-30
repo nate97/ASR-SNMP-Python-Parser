@@ -156,7 +156,7 @@ class gponCreator():
 
                     collidedDataList = [] # This is the list we append our collided data from the two files into, one is generated for EACH customer
 
-                    collidedDataList.append(rowsDATA[self.headerKeysDATA[NETWORK]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[REGION]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[BWPROF]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[OUTTAG]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[INTAG]])

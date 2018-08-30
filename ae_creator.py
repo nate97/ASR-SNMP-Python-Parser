@@ -24,31 +24,48 @@ TAGACTION = " TAG-ACTION "
 BWPROF = " BW-PROF "
 MCASTPROF = " MCAST-PROF "
 
+AEONTID = " AEONTID "
+REGID = " REG-ID "
+
 # File paths #
-FIXEDPATH = "combine_gpon/"
+FIXEDPATH = "combine_AE/"
 
 # HEADER #
 HEADER = ""
 
 # FILE NAMES #
-EXPORTFILENAME = "GPON.csv"
-FILE1 = "gpon_ont_ge.csv"
-FILE2 = "gpon_data.csv"
+TEMPFILENAME = "AE_TMP.csv"
+EXPORTFILENAME = "AE.csv"
+FILE1 = "AE_ONT.csv"
+FILE2 = "AE_ONT_DATAVIDEO.csv"
 
+REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
+    "Leamington": "705",
+    "Cave In Rock": "805",
+    "Elizabethtown": "905",
+    "Rosiclare": "1005",
+    "Golconda": "1105",
+    "Renshaw": "1205",
+    "Simpson": "1305",
+    "Eddyville": "1405",
+    "Hicks": "1505",
+    "Equality": "1605",
+    "Anna": "1705",
+    "Vienna": "1805" }
 
-class gponCreator():
+class aeCreator():
 
     def __init__(self):
-        print ("CMS GPON file combiner")
+        print ("CMS AE file combiner")
 
         self.userInput()
 
 
 
     def userInput(self):
-        print ("Enter name of your csv files, located in directory combine_gpon/")
-        self.file1 = input("(DEFAULT: gpon_ont_ge.csv) GE file: ")
-        self.file2 = input("(DEFAULT: gpon_data.csv) Data file: ")
+        print ("Enter name of your csv files, located in directory combine_AE/")
+        self.file1 = input("(DEFAULT: AE_ONT.csv) AE file: ")
+        self.file2 = input("(DEFAULT: AE_ONT_DATAVIDEO.csv) Data file: ")
 
         if self.file1 == "" or self.file2 == "":
             self.file1 = FILE1
@@ -87,7 +104,6 @@ class gponCreator():
         self.externalProcess("rm " + self.file2Fixed)
 
 
-
     def getColumnPosition(self, filename):
         fileA = open(filename) # Open file
         lines = fileA.readlines() # Read file
@@ -108,7 +124,7 @@ class gponCreator():
 
     def CSVCombiner(self, file1, file2):
         # First variable is the opened file in python, the second variable is the python CSV pointer ( these are important )
-        newReader1, newFile1 = self.openCSV(FIXEDPATH + EXPORTFILENAME, "w") # File to write to, defined in the global variables at the top
+        newReader1, newFile1 = self.openCSV(FIXEDPATH + TEMPFILENAME, "w") # File to write to, defined in the global variables at the top
         csvFileReader1, csvFile1 = self.openCSV(file1, "r")
         csvFileReader2, csvFile2 = self.openCSV(file2, "r")
 
@@ -119,58 +135,68 @@ class gponCreator():
         file2List = self.file2List(csvFileReader2)
 
         for rowsGE in file1List: ##### GE File ##### FIRST FILE
-            regionGE = rowsGE[self.headerKeysGE[REGION]]  # Extract position of region from headerKeysGE
             descrGE = rowsGE[self.headerKeysGE[DESCR]]
-            idGE = rowsGE[self.headerKeysGE[ONT]]
+            idAE = rowsGE[self.headerKeysGE[AEONTID]]
+
 
             # FILTER #
             ##### IGNORE THE JUNK DATA #####
             if descrGE == " ":
                 continue
-            if regionGE == " ":
+            if idAE == " ":
                 continue
-            if idGE == " ":
-                continue
+
 
             for rowsDATA in file2List: ##### Data File ##### SECOND FILE
                 regionData = rowsDATA[self.headerKeysDATA[REGION]]
                 descrData = rowsDATA[self.headerKeysDATA[DESCR]]
-                idData = rowsDATA[self.headerKeysDATA[ID]]
+                ontData = rowsDATA[self.headerKeysDATA[ONT]]
                 octetOutData = rowsDATA[self.headerKeysDATA[INTAG]]
+                tagActionData = rowsDATA[self.headerKeysDATA[TAGACTION]]
 
                 # FILTER #
                 ##### IGNORE THE JUNK DATA #####
-                if regionData == " ":
+                if regionData == " " or regionData == "autodiscovered":
                     continue
-                if idData == " ":
+                if ontData == " ":
                     continue
-                if octetOutData == "Not Used": # THIS MIGHT NOT BE THE CORRECT THING TODO!!!
+                if octetOutData == "Not Used": # THIS MIGHT NOT BE THE CORRECT WAY TO HANDLE THIS, TODO!!!
+                    continue
+                if tagActionData != "3(@AE Data)": # If tagaction is not what's specified, ignore it
                     continue
 
-                # Special case that formats our data correctly
-                idData = self.IDCorrector(idData) # Correct the format of the data in ID column
+
+                # Special CASE
+                realOutterTag = REGIONDICT[regionData]
+
 
                 # IF we have a collision, continue
-                if regionGE == regionData and idGE == idData: # If we have a match on a single line ( IN BOTH FILES ) we will merge that data
+                if idAE == ontData: # If we have a match on a single line ( IN BOTH FILES ) we will merge that data
                     #print ("Collision")
 
                     collidedDataList = [] # This is the list we append our collided data from the two files into, one is generated for EACH customer
 
-                    collidedDataList.append(rowsDATA[self.headerKeysDATA[NETWORK]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[REGION]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[BWPROF]])
-                    collidedDataList.append(rowsDATA[self.headerKeysDATA[OUTTAG]])
-                    collidedDataList.append(rowsDATA[self.headerKeysDATA[INTAG]])
-                    collidedDataList.append(rowsDATA[self.headerKeysDATA[MCASTPROF]])
+                    collidedDataList.append(realOutterTag)# OUTER tag
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[OUTTAG]]) # Actually INNER tag
+
+
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[ID]])
-                    collidedDataList.append(rowsGE[self.headerKeysGE[DESCR]]) # GE
-                    collidedDataList.append(rowsGE[self.headerKeysGE[ONT]]) # GE
+                    collidedDataList.append(rowsGE[self.headerKeysGE[DESCR]])
+                    collidedDataList.append(rowsDATA[self.headerKeysDATA[ONT]])
 
                     mergedData.append(collidedDataList)
 
+        print (mergedData)
         # Crappy solution to export data to the new CSV file
         for data in mergedData:
             stringy = ",".join(data)
             newFile1.write(stringy + "\n")
+        newFile1.close()
+
+        self.externalProcess("sort -f -o " + FIXEDPATH + EXPORTFILENAME + " " + FIXEDPATH + TEMPFILENAME) # This is done for user readability
+        self.externalProcess("rm " + FIXEDPATH + TEMPFILENAME) # Remove the temp file
 
 
 
@@ -216,6 +242,6 @@ class gponCreator():
 
 
 
-gponCreator()
+aeCreator()
 
 
