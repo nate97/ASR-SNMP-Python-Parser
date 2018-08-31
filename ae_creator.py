@@ -26,6 +26,8 @@ MCASTPROF = " MCAST-PROF "
 
 AEONTID = " AEONTID "
 REGID = " REG-ID "
+IPADDR = " IPADDRESS "
+MACADDR = " MACADDRESS "
 
 # File paths #
 FIXEDPATH = "combine_AE/"
@@ -35,6 +37,7 @@ HEADER = ""
 
 # FILE NAMES #
 TEMPFILENAME = "AE_TMP.csv"
+SORTEDFILENAME = "AE_SORTED.csv"
 EXPORTFILENAME = "AE.csv"
 FILE1 = "AE_ONT.csv"
 FILE2 = "AE_ONT_DATAVIDEO.csv"
@@ -99,9 +102,8 @@ class aeCreator():
         # Function merges the two provided CSV files
         self.CSVCombiner(self.file1Fixed, self.file2Fixed) # Open both CSV files to be merged
 
-        # Delete no longer neccessary temp files
-        self.externalProcess("rm " + self.file1Fixed)
-        self.externalProcess("rm " + self.file2Fixed)
+        self.tempFileCleanup()
+
 
 
     def getColumnPosition(self, filename):
@@ -178,25 +180,38 @@ class aeCreator():
 
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[REGION]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[BWPROF]])
+
                     collidedDataList.append(realOutterTag)# OUTER tag
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[OUTTAG]]) # Actually INNER tag
-
 
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[ID]])
                     collidedDataList.append(rowsGE[self.headerKeysGE[DESCR]])
                     collidedDataList.append(rowsDATA[self.headerKeysDATA[ONT]])
 
+                    collidedDataList.append(rowsGE[self.headerKeysGE[IPADDR]])
+                    collidedDataList.append(rowsGE[self.headerKeysGE[MACADDR]])
+
+
                     mergedData.append(collidedDataList)
 
-        print (mergedData)
         # Crappy solution to export data to the new CSV file
         for data in mergedData:
             stringy = ",".join(data)
             newFile1.write(stringy + "\n")
         newFile1.close()
 
-        self.externalProcess("sort -f -o " + FIXEDPATH + EXPORTFILENAME + " " + FIXEDPATH + TEMPFILENAME) # This is done for user readability
+
+
+    def tempFileCleanup(self):
+        self.externalProcess("sort -f -o " + FIXEDPATH + SORTEDFILENAME + " " + FIXEDPATH + TEMPFILENAME) # This is done for user readability
+        self.externalProcess("sort " + FIXEDPATH + SORTEDFILENAME + " | uniq > " + FIXEDPATH + EXPORTFILENAME)
+
         self.externalProcess("rm " + FIXEDPATH + TEMPFILENAME) # Remove the temp file
+        self.externalProcess("rm " + FIXEDPATH + SORTEDFILENAME) # Remove the sorted temp file
+
+        # Delete no longer necessary temp files
+        self.externalProcess("rm " + self.file1Fixed)
+        self.externalProcess("rm " + self.file2Fixed)
 
 
 
