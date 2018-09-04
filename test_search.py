@@ -103,7 +103,6 @@ class searchManager():
 
 
 
-
     def argsManager(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info

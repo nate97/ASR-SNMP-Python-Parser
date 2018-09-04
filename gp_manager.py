@@ -6,9 +6,9 @@ import csv
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
 HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
-              "Out octet", "Timestamp", "Network",
+              "Out octet", "Timestamp", "Region",
               "Speed Package","ID", "Description",
-              "ONT", "LinkedPort", "IP address"]  # Needs to be placed in globals
+              "ONT", "IP Address", "Mac address"]  # Needs to be placed in globals
 
 # Folder locations #
 MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
@@ -34,16 +34,16 @@ class GPONManager():
             for row in readCSV:
                 csvList = []
 
-                network = (row[0])
+                region = (row[0])
                 speedPackage = (row[1])
 
                 oTag = (row[2])
                 iTag = (row[3])
                 gponVlan = (str(oTag) + str(iTag)) # This merges our tags into single VLAN
 
-                ID = (row[5])
-                descr =  (row[6])
-                ont = (row[7])
+                ID = (row[4])
+                descr =  (row[5])
+                ont = (row[6])
 
                 for x in customerDict.values():
 
@@ -63,7 +63,7 @@ class GPONManager():
                         csvList.append(outOct)
                         csvList.append(timeStamp)
 
-                        csvList.append(network)
+                        csvList.append(region)
                         csvList.append(speedPackage)
                         csvList.append(ID)
                         csvList.append(descr)
@@ -99,7 +99,7 @@ class GPONManager():
                 outOct = customer[4]
                 timeStamp = customer[5]
 
-                network = customer[6]
+                region = customer[6]
                 speedPackage = customer[7]
                 ID = customer[8]
                 descr = customer[9]
@@ -112,13 +112,13 @@ class GPONManager():
                 tempList.append(outOct)
                 tempList.append(timeStamp)
 
-                tempList.append(network)
+                tempList.append(region)
                 tempList.append(speedPackage)
                 tempList.append(ID)
                 tempList.append(descr)
                 tempList.append(ont)
-                tempList.append(' ') # linkedPort
-                tempList.append(' ') # IP address
+                tempList.append(' ') # IP Address
+                tempList.append(' ') # Mac Address
 
                 writeCSV.writerow(tempList)
 

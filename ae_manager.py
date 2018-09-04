@@ -49,40 +49,31 @@ class AEManager():
             for row in readCSV:
                 # FILTER #
                 # Bypasses any errors or useless data in CSV file #
-                if "AEONTID" in row[0] or "generated" in row[0]: # Skip the first two useless rows
-                    continue
                 if row[3] == ' ': # If column 3 has no description skip it
                     continue
-                if row[9] == ' ': # If column 9 has no linkedPort skip it
-                    continue
-                if row[27] == ' ' or row[27] == 'autodiscovered':
-                    continue
-                if 'NTWK' in row[9]:
-                    continue
-
 
                 csvList = [] # List to append all CSV data
 
-                aeID = (row[0]) # AEONTID
-                regID = (row[1]) # REG-ID
-                subID = (row[2]) # SUBSCRIBER-ID
-                descr = (row[3]) # DESCR
-                ontProf = (row[4]) # ONTPROF
+                region = (row[0]) # region
+                service = (row[1]) # Service type
+                outTag = (row[2]) # Out tag
+                inTag = (row[3]) # In tag
+                ID = (row[4]) # ID
+                descr = (row[5]) # Description
+                ont = (row[6]) # ONT
+                ipAddr = (row[7]) # Ip address
+                macAddr = (row[8]) # Mac address
 
-                linkedNet = (row[8]) # LINKED NETWORK
-                linkedPort = (row[9]) # LINKED PORT
-                ipAddr = (row[10]) # IP ADDRESS
-                macAddr = (row[11]) # Mac address
+                aeVlan = (outTag + inTag)
 
-                region = (row[27]) # REGION
 
-                cTag = self.calculateCTag(row[9]) # row 9 is linked-port
-                sTag = self.calculateSTag(row[27]) # Row 27 is the region
-                if sTag == None: # This skips appending the customer to our list. Something is wrong with the data.
-                    continue
+                # UNUSED!!!
+                """#cTag = self.calculateCTag(row[9]) # row 9 is linked-port
+                #sTag = self.calculateSTag(row[27]) # Row 27 is the region
+                #if sTag == None: # This skips appending the customer to our list. Something is wrong with the data.
+                #    continue
 
-                aeVlan = (sTag + cTag)
-
+                #aeVlan = (sTag + cTag)"""
 
                 for x in customerDict.values():
                     index = x[0][0]
@@ -93,7 +84,7 @@ class AEManager():
                     outOct = x[1][1]
                     timeStamp = x[1][2]
 
-                    if aeVlan == asrVlan: # If the VLANS match, the data for this line is related and can be appended
+                    if aeVlan == asrVlan: # If the VLANS match, the data for this line IS related and can be appended
                         # Append CSV data to list #
                         csvList.append(index)
                         csvList.append(portc)
@@ -103,19 +94,21 @@ class AEManager():
                         csvList.append(timeStamp)
 
                         csvList.append(region)
-                        csvList.append(' ') # ID1
-                        csvList.append(' ') # Match1
+                        csvList.append(service)
+
                         csvList.append(descr)
-                        csvList.append(' ') # ONT
-                        csvList.append(linkedPort)
+                        csvList.append(ont) # ONT
+
                         csvList.append(ipAddr)
+                        csvList.append(macAddr)
 
                         self.customerList.append(csvList)
         # Close the AE csv file
         csvAE.close()
 
 
-    # Calculates our Ctag with formula from the linkedPort data for customer, used for vlan
+    # UNUSED!!!
+    """# Calculates our Ctag with formula from the linkedPort data for customer, used for vlan
     def calculateCTag(self, linkedPort):
         lPort = linkedPort.split("-")
 
@@ -136,7 +129,8 @@ class AEManager():
             #print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
             regionCode = None
 
-        return regionCode
+        return regionCode"""
+
 
 
     # Exports combined ASR AE CSV files
@@ -150,7 +144,7 @@ class AEManager():
             writeCSV = csv.writer(csvAEcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            writeCSV.writerow(HEADERLIST)
+            #writeCSV.writerow(HEADERLIST) TEMP
 
             for customer in self.customerList:
                 tempList = []
@@ -164,12 +158,14 @@ class AEManager():
                 timeStamp = customer[5]
 
                 region = customer[6]
-                ID = customer[7]
-                match = customer[8]
-                descr = customer[9]
-                ont = customer[10]
-                linkedPort = customer[11]
-                ipAddr = customer[12]
+                service = customer[7]
+
+                descr = customer[8]
+
+                ID = customer[9]
+
+                ipAddr = customer[10]
+                macAddr = customer[11]
 
                 tempList.append(index)
                 tempList.append(portc)
@@ -179,12 +175,13 @@ class AEManager():
                 tempList.append(timeStamp)
 
                 tempList.append(region)
+                tempList.append(service)
                 tempList.append(ID)
-                tempList.append(match)
+
                 tempList.append(descr)
-                tempList.append(ont)
-                tempList.append(linkedPort)
+                tempList.append(" ") # ONT ( not used on AE )
                 tempList.append(ipAddr)
+                tempList.append(macAddr)
 
                 writeCSV.writerow(tempList)
 
