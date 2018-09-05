@@ -207,11 +207,11 @@ class searchManager(graphingManager):
 
         #print (timeL)
 
-        plt.autoscale(enable=True, axis='both', tight=None)
+        #plt.autoscale(enable=True, axis='both', tight=None)
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
         fig.set_size_inches(20, 10.0, forward=True)
 
-        plt.ylabel('Log of Bits Per Second')
+        plt.ylabel('Bits')
         plt.xlabel('Time')
 
 

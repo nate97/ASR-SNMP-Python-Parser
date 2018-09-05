@@ -1,0 +1,8 @@
+#### REQUIREMENTS ####
+
+INSTALLED WITH PIP:
+    matplotlib
+
+INSTALLED WITH PACKAGE MANAGER:
+    python3-tk ( python3-tkinter )
+    snmp ( net-snmp-utils )
