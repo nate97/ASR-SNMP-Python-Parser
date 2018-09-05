@@ -1,9 +1,11 @@
-# ASR-SNMP-Python-Parser
+# Customer Consumption Toolkit
 
-The goal of this project is to allow the easy viewing of customer traffic usage.
+The goal of this toolset is to allow an individual to inspect customer usage data and allow them to target high consumption consumers.
+This application has various tools, primarily designed for a backend that allows you to maintain a pseudo database of your customer’s usage data. This toolset allows you to view and inspect various pieces of information regarding data consumption. Some of the data it allows you to view are things such as; graphs, 95th percentile, by means of sorting customers from lowest to highest, and averaged maximum data usage.
 
-This will accomplish this by extracting ASR data and combining the data with ACTIVE E and GPON respectivly.
-
-## Ideas
-Eventually I would like to have a GUI for this application that allows you to easily sift through the historical records
-of customer data usage, but for now, we're simply parsing and combining the data into a usable format.
+## Requirements
+	Python 3 or above.
+	SNMP (net-snmp-utils)
+	Python3-tk (python3-tkinter)
+	PIP3 packages:
+		matplotlib
