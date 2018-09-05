@@ -33,13 +33,6 @@ class searchManager():
 
 
 
-    def grepCommand(self, name):
-        command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
-
-        subprocess.call(command, shell=True)
-
-
-
     def grepParser(self):
         with open(TEMPFILE, "r") as ins: # Opens the temp text file containing the grepped data
             lineArray = []
@@ -61,16 +54,25 @@ class searchManager():
                 cIndex = n[0]
                 cONT = n[10]
 
+                print (n)
+
                 customerList.append(n[0])  # ASR Index
                 customerList.append(n[1])  # Porthchannel
                 customerList.append(n[2])  # VLAN
-                customerList.append(n[6])  # Network
-                customerList.append(n[7])  # ID
-                customerList.append(n[8])  # MATCH
+
+                # 3 thru 5 done later
+
+                customerList.append(n[6])  # Region
+                customerList.append(n[7])  # Service package
+                customerList.append(n[8])  # ID
                 customerList.append(n[9])  # Description
                 customerList.append(n[10]) # ONT
-                customerList.append(n[11]) # PortChannel
-                customerList.append(n[12]) # IP Address
+                customerList.append(n[11]) # Ip Address
+                customerList.append(n[12]) # Mac Address
+
+            print ("?")
+            print (n[0])
+            print (cIndex)
 
             # Make sure we only retrive the data from a single customer
             if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
@@ -84,9 +86,9 @@ class searchManager():
                 #octetListSingle.append(dTime)  # Timestamp
 
                 octetListTotal.append(octetListSingle) # Append an octet single, to the octet total list
-            else:
-                print ("This customer has the same value as another, search with different criteria for now")
-                print ("This is the index value of omited customer: "+ n[0])
+
+            self.nameCollision(cIndex, n[0]) # IF WE HAVE A REPEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
@@ -99,7 +101,8 @@ class searchManager():
     def nameCollision(self, staticIndex, customerIndex):
         if customerIndex != staticIndex:
             print ("This customer has the same value as another, search using different criteria.")
-            print ("This is the index value of omited customer: " + customerIndex)
+            print ("Index value of customer A: " + customerIndex)
+            print ("Index value of customer B: " + staticIndex)
 
 
 
@@ -202,11 +205,14 @@ class searchManager():
 
         #print (timeL)
 
+        plt.autoscale(enable=True, axis='both', tight=None)
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
         fig.set_size_inches(20, 10.0, forward=True)
 
         plt.ylabel('Log of Bits Per Second')
         plt.xlabel('Time')
+
+
 
         #ax.plot(timeL, bpsList, marker='o', markevery=9)
         ax.plot(timeL, bpsList)
@@ -229,9 +235,6 @@ class searchManager():
 
         cut = 1
 
-
-
-
         if length > 50:
             cut = 4
 
@@ -247,6 +250,9 @@ class searchManager():
         if length > 400:
             cut = 14
 
+        if length > 600:
+            cut = 30
+
         print (cut)
 
         return my_list[::cut]
@@ -256,6 +262,13 @@ class searchManager():
     def octetToMb(self, octet):
         mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
         return mb
+
+
+
+    # Searches through all saved customer date using grep, and exports it to a temp file which is used later
+    def grepCommand(self, name):
+        command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
+        subprocess.call(command, shell=True)
 
 
 

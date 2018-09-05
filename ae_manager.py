@@ -21,9 +21,9 @@ REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
 HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
-              "Out octet", "Timestamp", "Network",
-              "ID", "Match", "Description",
-              "ONT", "LinkedPort", "IP address"] # This list is for human readability. If someone manually opens an exported CSV file it will have headers.
+              "Out octet", "Timestamp", "Region",
+              "Speed Package","ID", "Description",
+              "ONT", "IP Address", "Mac address"]  # Needs to be placed in globals
 
 # Folder locations #
 MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
@@ -144,7 +144,7 @@ class AEManager():
             writeCSV = csv.writer(csvAEcustomer)
 
             # This is just for human readability, adds headers to the CSV file
-            #writeCSV.writerow(HEADERLIST) TEMP
+            writeCSV.writerow(HEADERLIST) # TEMP
 
             for customer in self.customerList:
                 tempList = []
