@@ -6,6 +6,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+from graphing import graphingManager
+
 
 ### GLOBALS ###
 
@@ -24,10 +26,12 @@ SEARINDEX = '--index'
 
 
 # This script will allow you to search through all of the historical data collected on customers bandwidth usage
-class searchManager():
+class searchManager(graphingManager):
 
     def __init__(self):
         print ("Grep searcher...")
+
+
 
         self.argsManager()
 
@@ -54,7 +58,7 @@ class searchManager():
                 cIndex = n[0]
                 cONT = n[10]
 
-                print (n)
+                #print (n)
 
                 customerList.append(n[0])  # ASR Index
                 customerList.append(n[1])  # Porthchannel
@@ -70,9 +74,9 @@ class searchManager():
                 customerList.append(n[11]) # Ip Address
                 customerList.append(n[12]) # Mac Address
 
-            print ("?")
-            print (n[0])
-            print (cIndex)
+            #print ("?")
+            #print (n[0])
+            #print (cIndex)
 
             # Make sure we only retrive the data from a single customer
             if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
@@ -94,7 +98,8 @@ class searchManager():
 
         #print (customerList)
         with plt.style.context('ggplot'):
-            self.graph(customerList)
+            #self.graph(customerList)
+            self.graphPrerequisites(customerList)
 
 
 
@@ -121,9 +126,6 @@ class searchManager():
 
     # Simple switch for the type of data user is searching for
     def searchSwitch(self, inputArgs):
-
-        print (inputArgs)
-
         if inputArgs.name:
             self.searchCustomers(inputArgs.name)
         if inputArgs.vlan:
@@ -229,9 +231,7 @@ class searchManager():
 
 
     def removeEveryOther(self, my_list):
-
         length = len(my_list)
-        print (length)
 
         cut = 1
 
@@ -252,8 +252,6 @@ class searchManager():
 
         if length > 600:
             cut = 30
-
-        print (cut)
 
         return my_list[::cut]
 
