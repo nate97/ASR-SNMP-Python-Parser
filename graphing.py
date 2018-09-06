@@ -25,6 +25,8 @@ class graphingManager():
         timeList = []
         firstSample = True
 
+        print (customerList)
+
         for uu in customerList[10]:
             outOctet = (int(uu[1]))
             outOctet = self.octetToMb(outOctet)
@@ -56,20 +58,26 @@ class graphingManager():
 
     def createGraph(self, timeList, bpsList):
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
-        fig.set_size_inches(10, 10.0, forward=True)
+        fig.set_size_inches(20, 10.0, forward=True)
 
 
         plt.xlabel(xLABEL)
         plt.ylabel(yLABEL)
 
-        #ax.plot(timeL, bpsList, marker='o', markevery=9)
+        #plt.xlim([0, 10])
+        plt.ylim([0, 1])
+
+        #ax.plot(timeList, bpsList, marker='o', markevery=9)
         ax.plot(timeList, bpsList)
 
         locs, labels = plt.xticks()
         #labelList = self.removeEveryOther(locs)
+        labelList = self.removeExtraneous(locs)
 
-        plt.xticks(locs)
-        plt.show()
+        plt.xticks(rotation=50)
+        plt.xticks(labelList)
+
+        #plt.show()
         fig.savefig(GRAPH_FILENAME)  # save the figure to file
         plt.close(fig)  # close the figure
 
@@ -86,6 +94,19 @@ class graphingManager():
             bpsList.append(bitsPerSec)
 
         return bpsList
+
+
+
+    # Removes extraneous labels from our X axis
+    def removeExtraneous(self, theList):
+        length = len(theList)
+
+        cut = int((length / 3) * (length / (5 * length)))
+
+        if cut == 0:
+            return theList
+
+        return theList[::cut]
 
 
 

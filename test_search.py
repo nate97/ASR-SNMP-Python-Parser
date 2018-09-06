@@ -30,9 +30,6 @@ class searchManager(graphingManager):
 
     def __init__(self):
         print ("Grep searcher...")
-
-
-
         self.argsManager()
 
 
@@ -43,11 +40,15 @@ class searchManager(graphingManager):
             for line in ins:
                 lineArray.append(line.split('\n')[0])
 
+        if lineArray == []:
+            print ("Nothing found.")
+            return
+
         # Vars
         customerList = [] # Single customer is appended in here, static data goes here
         octetListTotal = [] # Total octet list, this is where dynamic data goes
         staticFlag = 0 # Flag indicates if we've already appended static data
-        
+
         for lines in lineArray: # Iterate over every line in the temp.txt file
             n = lines.split(",") # Split every line into a list delimited by commas
             
@@ -57,8 +58,6 @@ class searchManager(graphingManager):
                 # This is so we can make sure we don't accidently get two different customers
                 cIndex = n[0]
                 cONT = n[10]
-
-                #print (n)
 
                 customerList.append(n[0])  # ASR Index
                 customerList.append(n[1])  # Porthchannel
@@ -82,6 +81,7 @@ class searchManager(graphingManager):
             if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
                 # Octet data #
                 octetListSingle = [] # List for AN individual in and out octet w/ timestamp
+
                 octetListSingle.append(n[3])  # In octet
                 octetListSingle.append(n[4])  # Out octet
                 octetListSingle.append(n[5])  # Timestamp
@@ -143,117 +143,6 @@ class searchManager(graphingManager):
     def searchCustomers(self, name):
         self.grepCommand(name)
         self.grepParser()
-
-
-
-    def graph(self, customerList):
-
-        outUsage = []
-        timeL = []
-
-        timeSeconds = []
-
-        firstSample = True
-
-        for uu in customerList[10]:
-            outOctet = (int(uu[1]))
-            outOctet = self.octetToMb(outOctet)
-            time = (float(uu[2]))
-
-            outUsage.append(outOctet)
-
-            if not firstSample:
-                # Visual data
-                timeStr = datetime.datetime.fromtimestamp(time).strftime('%H:%M')
-                timeL.append(timeStr)
-
-            # Seconds
-            timeSeconds.append(time)
-
-            firstSample = False
-
-
-
-        outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
-        timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
-
-
-        #print (outUsageDiff)
-
-        sortedUsageDiff = sorted(outUsageDiff)
-        length = len(sortedUsageDiff)
-
-
-        calcC = round((length * 0.95))
-
-        #print (sortedUsageDiff[calcC])
-        #print (sortedUsageDiff)
-
-
-
-
-        bpsList = []
-        count = len(outUsageDiff)
-
-
-        for x in range(0, count):
-            dataSample = outUsageDiff[x]
-            timePeriod = timeDiff[x]
-
-            bitsPerSec = dataSample / timePeriod
-
-            bpsList.append(bitsPerSec)
-
-
-        #print (timeL)
-
-        #plt.autoscale(enable=True, axis='both', tight=None)
-        fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
-        fig.set_size_inches(20, 10.0, forward=True)
-
-        plt.ylabel('Bits')
-        plt.xlabel('Time')
-
-
-
-        #ax.plot(timeL, bpsList, marker='o', markevery=9)
-        ax.plot(timeL, bpsList)
-
-        locs, labels = plt.xticks()
-        labelList = self.removeEveryOther(locs)
-
-
-        plt.xticks(labelList)
-
-        fig.savefig('graph_usage.png')  # save the figure to file
-        plt.close(fig)  # close the figure
-
-
-
-    def removeEveryOther(self, my_list):
-        length = len(my_list)
-
-        cut = 1
-
-        if length > 50:
-            cut = 4
-
-        if length > 100:
-            cut = 8
-
-        if length > 200:
-            cut = 9
-
-        if length > 300:
-            cut = 11
-
-        if length > 400:
-            cut = 14
-
-        if length > 600:
-            cut = 30
-
-        return my_list[::cut]
 
 
 

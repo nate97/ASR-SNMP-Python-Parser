@@ -19,7 +19,7 @@ CREDENTIALSFILE = 'credentials.yaml' # File contains all credentials of machines
 ASRCREDSKEY = 'rtl1-credentials' # Dictionary name that contains info to access device (This is located in credentials.yaml)
 
 # Time delay before we poll ASR #
-DELAY = 10 # In seconds
+DELAY = 30 # In seconds
 
 
 class ASRDataExtractor(OIDParser, GPONManager, AEManager):
