@@ -9,8 +9,8 @@ import datetime
 
 # GLOBALS #
 GRAPH_FILENAME = "graph_00.png"
-xLABEL = "Time"
-yLABEL = "Bits"
+xLABEL = "Date/Time"
+yLABEL = "Bandwidth in MBps"
 
 
 class graphingManager():
@@ -37,7 +37,7 @@ class graphingManager():
 
             if not firstSample:
                 # Visual data, this is what we draw on the png file for the time scale
-                timeStr = datetime.datetime.fromtimestamp(time).strftime('%H:%M')
+                timeStr = datetime.datetime.fromtimestamp(time).strftime('%m/%d %H:%M')
                 timeList.append(timeStr)
 
             # Seconds
@@ -66,7 +66,7 @@ class graphingManager():
         plt.ylabel(yLABEL)
 
         #plt.xlim([0, 10])
-        plt.ylim([0, 4])
+        plt.ylim(0.0, 5.0)
 
         #ax.plot(timeList, bpsList, marker='o', markevery=9)
         ax.plot(timeList, bpsList)
