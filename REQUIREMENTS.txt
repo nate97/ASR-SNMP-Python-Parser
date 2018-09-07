@@ -2,7 +2,9 @@
 
 INSTALLED WITH PIP:
     matplotlib
-
+    bitmath
+    
 INSTALLED WITH PACKAGE MANAGER:
     python3-tk ( python3-tkinter )
     snmp ( net-snmp-utils )
+    

@@ -1,9 +1,10 @@
-import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
-import numpy as np
-
 import datetime
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import datetime
+
 
 
 # GLOBALS #
@@ -25,7 +26,7 @@ class graphingManager():
         timeList = []
         firstSample = True
 
-        print (customerList)
+        #print (customerList)
 
         for uu in customerList[10]:
             outOctet = (int(uu[1]))
@@ -65,7 +66,7 @@ class graphingManager():
         plt.ylabel(yLABEL)
 
         #plt.xlim([0, 10])
-        plt.ylim([0, 1])
+        plt.ylim([0, 4])
 
         #ax.plot(timeList, bpsList, marker='o', markevery=9)
         ax.plot(timeList, bpsList)

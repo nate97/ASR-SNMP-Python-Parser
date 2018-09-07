@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from graphing import graphingManager
+from bitmath import *
+import bitmath
+
 
 
 ### GLOBALS ###
@@ -48,6 +51,7 @@ class searchManager(graphingManager):
         customerList = [] # Single customer is appended in here, static data goes here
         octetListTotal = [] # Total octet list, this is where dynamic data goes
         staticFlag = 0 # Flag indicates if we've already appended static data
+        maxUsageOut = 0
 
         for lines in lineArray: # Iterate over every line in the temp.txt file
             n = lines.split(",") # Split every line into a list delimited by commas
@@ -93,8 +97,15 @@ class searchManager(graphingManager):
 
             self.nameCollision(cIndex, n[0]) # IF WE HAVE A REPEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
         customerList.append(octetListTotal) # Append the total octet list to the customer list
+        print (len(octetListTotal))
+        latestSample = len(octetListTotal) - 1 # Get the latest sample we have
+        maxUsageOut = int(octetListTotal[latestSample][1])
+        maxUsageOut = bitmath.Byte(maxUsageOut)
+        print (maxUsageOut)
+        print (maxUsageOut.to_GiB())
+
+
 
         #print (customerList)
         with plt.style.context('ggplot'):
@@ -147,8 +158,14 @@ class searchManager(graphingManager):
 
 
     def octetToMb(self, octet):
-        mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
-        return mb
+        #mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
+        #return mb
+
+        octetInt = int(octet)
+        usageByte = bitmath.Byte(octetInt)
+        usageMb = int(usageByte.to_MiB())
+
+        return usageMb
 
 
 
