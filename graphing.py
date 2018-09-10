@@ -30,8 +30,13 @@ class graphingManager():
 
         for uu in customerList[10]:
             outOctet = (int(uu[1]))
-            outOctet = self.octetToMb(outOctet)
+            #outOctet = self.octetToMb(outOctet)
+
+            #print ("!!!!!!!!!!!")
+            #print (outOctet)
             time = (float(uu[2]))
+            #print (time)
+            #print ("???????????")
 
             outUsage.append(outOctet)
 
@@ -47,11 +52,10 @@ class graphingManager():
         outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
         timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
 
-        sortedUsageDiff = sorted(outUsageDiff)
-        length = len(sortedUsageDiff)
+
         count = len(outUsageDiff)
-        calcC = round((length * 0.95))
         bpsList = self.calculateBPS(count, outUsageDiff, timeDiff)  # Calls function
+
 
         self.createGraph(timeList, bpsList)
 
@@ -63,30 +67,32 @@ class graphingManager():
 
 
     def createGraph(self, timeList, bpsList):
+
+        print (timeList)
+        print (bpsList)
+
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
         fig.set_size_inches(20, 10.0, forward=True)
-
-        fig.subplots_adjust(bottom=.25)
-
 
         plt.xlabel(xLABEL)
         plt.ylabel(yLABEL)
 
-        #plt.xlim([0, 10])
-        plt.ylim(0.0, 5.0)
+        plt.ylim(0.0, 100.0)
 
-        #ax.plot(timeList, bpsList, marker='o', markevery=9)
+        # ax.plot(timeList, bpsList, marker='o', markevery=9)
         ax.plot(timeList, bpsList)
 
         locs, labels = plt.xticks()
-        #labelList = self.removeEveryOther(locs)
+        # labelList = self.removeEveryOther(locs)
         labelList = self.removeExtraneous(locs)
 
         plt.xticks(rotation=50)
         plt.xticks(labelList)
 
-        #plt.show()
-        fig.savefig(GRAPH_FILENAME,bbox_inches='tight')  # save the figure to file
+
+        # plt.show()
+        fig.savefig(GRAPH_FILENAME)  # save the figure to file
+
         plt.close(fig)  # close the figure
 
 
@@ -95,9 +101,10 @@ class graphingManager():
         bpsList = [] # Put our bits per second in list
 
         for x in range(0, count):
-            dataSample = usageDiff[x]
+            dataSample = usageDiff[x] * 8
+            #print (dataSample)
             timePeriod = timeDiff[x]
-            bitsPerSec = (dataSample / timePeriod)
+            bitsPerSec = (dataSample / timePeriod)  / 1000000
 
             bpsList.append(bitsPerSec)
 
