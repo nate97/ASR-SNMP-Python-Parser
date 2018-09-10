@@ -3,8 +3,9 @@
 INSTALLED WITH PIP:
     matplotlib
     bitmath
+    pyyaml
     
 INSTALLED WITH PACKAGE MANAGER:
-    python3-tk ( python3-tkinter )
-    snmp ( net-snmp-utils )
+    python3-tk (Fedora: python3-tkinter )
+    snmp (Fedora: net-snmp-utils )
     

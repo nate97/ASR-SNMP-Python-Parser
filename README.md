@@ -9,4 +9,5 @@ This application has various tools, primarily designed for a backend that allows
 	3. Python3-tk (python3-tkinter)
 	4. PIP3 packages:
 		1. matplotlib
-        2. bitmath
+		2. bitmath
+        3. pyyaml

@@ -51,15 +51,22 @@ class graphingManager():
         length = len(sortedUsageDiff)
         count = len(outUsageDiff)
         calcC = round((length * 0.95))
-        bpsList = self.calculateBPS(count, outUsageDiff, timeDiff) # Calls function
+        bpsList = self.calculateBPS(count, outUsageDiff, timeDiff)  # Calls function
 
         self.createGraph(timeList, bpsList)
 
 
 
+    # Allows us to view the maximum data downloaded and uploaded by the customer based off the octets
+    def getMaxUsage(self):
+        pass
+
+
     def createGraph(self, timeList, bpsList):
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
         fig.set_size_inches(20, 10.0, forward=True)
+
+        fig.subplots_adjust(bottom=.25)
 
 
         plt.xlabel(xLABEL)
@@ -79,7 +86,7 @@ class graphingManager():
         plt.xticks(labelList)
 
         #plt.show()
-        fig.savefig(GRAPH_FILENAME)  # save the figure to file
+        fig.savefig(GRAPH_FILENAME,bbox_inches='tight')  # save the figure to file
         plt.close(fig)  # close the figure
 
 
