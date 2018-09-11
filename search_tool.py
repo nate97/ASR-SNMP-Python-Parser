@@ -2,17 +2,19 @@ import subprocess
 import argparse
 import datetime
 import os
+import csv
+import yaml
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from graphing import graphingManager
-from bitmath import *
 import bitmath
 
-
-
 ### GLOBALS ###
+
+# Config file locations #
+SERVICECONFIG = 'config/SERVICES.yaml'
 
 # Directorys and file extensions #
 GPONDIRECTORY = 'CUSTOMER_DATA_CSV/'
@@ -33,7 +35,46 @@ class searchManager(graphingManager):
 
     def __init__(self):
         print ("Grep searcher...")
+
+        # Service type dictionary
+        self.SERVICES = self.openYAML(SERVICECONFIG)  # Reads YAML config file for available packages
+
         self.argsManager()
+
+
+
+    def argsManager(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
+        parser.add_argument(SEARVLAN, help="Search for customer with VLAN tag")
+        parser.add_argument(SEARONT, help="Search for customer with ONT")
+        parser.add_argument(SEARID, help="Search for customer with ID")
+        parser.add_argument(SEARINDEX, help="Search for customer with ASR index value")
+        args = parser.parse_args()
+
+        self.searchSwitch(args)
+
+
+
+    # Simple switch for the type of data user is searching for
+    def searchSwitch(self, inputArgs):
+        if inputArgs.name:
+            self.searchCustomers(inputArgs.name)
+        if inputArgs.vlan:
+            self.searchCustomers(inputArgs.vlan)
+        if inputArgs.ont:
+            self.searchCustomers(inputArgs.ont)
+        if inputArgs.id:
+            self.searchCustomers(inputArgs.id)
+        if inputArgs.index:
+            self.searchCustomers(inputArgs.index)
+        # Add new search fields here
+
+
+
+    def searchCustomers(self, name):
+        self.grepCommand(name)
+        self.grepParser()
 
 
 
@@ -77,10 +118,6 @@ class searchManager(graphingManager):
                 customerList.append(n[11]) # Ip Address
                 customerList.append(n[12]) # Mac Address
 
-            #print ("?")
-            #print (n[0])
-            #print (cIndex)
-
             # Make sure we only retrive the data from a single customer
             if n[0] == cIndex: # This statement is to make sure we only put the octet data of a single customer in the output.
                 # Octet data #
@@ -98,19 +135,45 @@ class searchManager(graphingManager):
             self.nameCollision(cIndex, n[0]) # IF WE HAVE A REPEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         customerList.append(octetListTotal) # Append the total octet list to the customer list
-        print (len(octetListTotal))
-        latestSample = len(octetListTotal) - 1 # Get the latest sample we have
-        maxUsageOut = int(octetListTotal[latestSample][1])
-        maxUsageOut = bitmath.Byte(maxUsageOut)
-        print (maxUsageOut)
-        print (maxUsageOut.to_GiB())
+
+        self.other(customerList)
 
 
 
-        #print (customerList)
-        with plt.style.context('ggplot'):
-            #self.graph(customerList)
-            self.graphPrerequisites(customerList)
+    def other(self, customerList):
+
+        graphList, bpsList, timeList = self.graphDataFormatter(customerList)
+
+        maxPeak = max(bpsList)
+
+        customerList.pop(10)
+        customerList.append(maxPeak)
+        #customerList.append(bpsList)
+        #customerList.append(timeList)
+
+        print (customerList)
+        self.exportCustomer(customerList, bpsList, timeList)
+        self.graphManager(graphList)
+
+
+
+    def exportCustomer(self, customerList, bpsList, timeList):
+        with open('test.csv', 'w') as csvCustomer:
+            writeCSV = csv.writer(csvCustomer)
+
+            writeCSV.writerow(customerList)
+
+            tmp = []
+
+            for x in range(0, len(bpsList)):
+                t = []
+                t.append(str(bpsList[x]))
+                t.append(str(timeList[x]))
+                tmp.append(t)
+            print (tmp)
+
+
+            writeCSV.writerow(tmp)
 
 
 
@@ -122,45 +185,7 @@ class searchManager(graphingManager):
 
 
 
-    def argsManager(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument(SEARNAME, help="Search for customer with name") # Later on will require more than just customer info
-        parser.add_argument(SEARVLAN, help="Search for customer with VLAN tag")
-        parser.add_argument(SEARONT, help="Search for customer with ONT")
-        parser.add_argument(SEARID, help="Search for customer with ID")
-        parser.add_argument(SEARINDEX, help="Search for customer with ASR index value")
-        args = parser.parse_args()
-
-        self.searchSwitch(args)
-
-
-
-    # Simple switch for the type of data user is searching for
-    def searchSwitch(self, inputArgs):
-        if inputArgs.name:
-            self.searchCustomers(inputArgs.name)
-        if inputArgs.vlan:
-            self.searchCustomers(inputArgs.vlan)
-        if inputArgs.ont:
-            self.searchCustomers(inputArgs.ont)
-        if inputArgs.id:
-            self.searchCustomers(inputArgs.id)
-        if inputArgs.index:
-            self.searchCustomers(inputArgs.index)
-        # Add new search fields here
-
-
-
-    def searchCustomers(self, name):
-        self.grepCommand(name)
-        self.grepParser()
-
-
-
     def octetToMb(self, octet):
-        #mb = int(octet / 1048576) # Conversion from octet to Mb, converted to integer, strips anything after decimal
-        #return mb
-
         octetInt = int(octet)
         usageByte = bitmath.Byte(octetInt)
         usageMb = int(usageByte.to_MiB())
@@ -173,6 +198,89 @@ class searchManager(graphingManager):
     def grepCommand(self, name):
         command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
         subprocess.call(command, shell=True)
+
+
+
+    def serviceToMaxUpDwn(self, serviceType):
+        maxUpDwn = self.SERVICES[serviceType] # Finds service's up and down speeds
+
+        return maxUpDwn
+
+
+
+    # Opens a yaml file and returns data stream
+    def openYAML(self, filename):
+        with open(filename, 'r') as stream:
+            try:
+                yamlDataFile = yaml.load(stream)
+                return yamlDataFile
+            except:
+                    print (exc)
+
+
+
+    # Formats our data for exporting it to a visual graph.
+    def graphDataFormatter(self, customerList):
+        graphFormatList = []
+        timeSeconds = []
+        outUsage = []
+        timeList = []
+        firstSample = True
+
+        serviceType = customerList[4]
+        customerName = customerList[6]
+        region = customerList[3]
+        vlan = customerList[2]
+        package = customerList[4]
+
+        serviceUpDown = self.serviceToMaxUpDwn(serviceType)
+
+        for uu in customerList[10]:
+            outOctet = (int(uu[1]))
+            time = (float(uu[2]))
+
+            outUsage.append(outOctet)
+
+            if not firstSample:
+                # Visual data, this is what we draw on the png file for the time scale
+                timeStr = datetime.datetime.fromtimestamp(time).strftime('%m/%d %H:%M')
+                timeList.append(timeStr)
+
+            timeSeconds.append(time) # Seconds
+            firstSample = False
+
+        outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
+        timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
+
+        count = len(outUsageDiff)
+        bpsList = self.calculateBPS(count, outUsageDiff, timeDiff)  # Calls function
+        peakDownload = max(bpsList)
+
+        # This is all for the visual side of the graph
+        graphFormatList.append(timeList)
+        graphFormatList.append(bpsList)
+        graphFormatList.append(serviceUpDown)
+        graphFormatList.append(customerName)
+        graphFormatList.append(region)
+        graphFormatList.append(vlan)
+        graphFormatList.append(package)
+
+        return graphFormatList, bpsList, timeDiff # Reason we return multiple variables is that we will use bpsList and timeDiff when we export the specified customers' CSV
+
+
+
+    def calculateBPS(self, count, usageDiff, timeDiff):
+        bpsList = [] # Put our bits per second in list
+        graphScale = 1000000
+
+        for x in range(0, count):
+            dataSample = usageDiff[x] * 8
+            timePeriod = timeDiff[x]
+            bitsPerSec = (dataSample / timePeriod)  / graphScale
+
+            bpsList.append(bitsPerSec)
+
+        return bpsList
 
 
 

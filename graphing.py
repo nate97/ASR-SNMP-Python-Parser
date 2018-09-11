@@ -20,66 +20,27 @@ class graphingManager():
 
 
 
-    def graphPrerequisites(self, customerList):
-        timeSeconds = []
-        outUsage = []
-        timeList = []
-        firstSample = True
-
-        #print (customerList)
-
-        for uu in customerList[10]:
-            outOctet = (int(uu[1]))
-            #outOctet = self.octetToMb(outOctet)
-
-            #print ("!!!!!!!!!!!")
-            #print (outOctet)
-            time = (float(uu[2]))
-            #print (time)
-            #print ("???????????")
-
-            outUsage.append(outOctet)
-
-            if not firstSample:
-                # Visual data, this is what we draw on the png file for the time scale
-                timeStr = datetime.datetime.fromtimestamp(time).strftime('%m/%d %H:%M')
-                timeList.append(timeStr)
-
-            # Seconds
-            timeSeconds.append(time)
-            firstSample = False
-
-        outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
-        timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
-
-
-        count = len(outUsageDiff)
-        bpsList = self.calculateBPS(count, outUsageDiff, timeDiff)  # Calls function
-
-
-        self.createGraph(timeList, bpsList)
+    def graphManager(self, vGraphList): # Visual graph list
+        with plt.style.context('ggplot'): # This is the style of the graph
+            #self.graph(customerList)
+            self.createCustomerGraph(vGraphList[0], vGraphList[1], vGraphList[2], vGraphList[3], vGraphList[4], vGraphList[5], vGraphList[6])
 
 
 
-    # Allows us to view the maximum data downloaded and uploaded by the customer based off the octets
-    def getMaxUsage(self):
-        pass
-
-
-    def createGraph(self, timeList, bpsList):
-
-        print (timeList)
-        print (bpsList)
+    def createCustomerGraph(self, timeList, bpsList, service, customerName, region, vlan, package):
+        serviceDwnSpd = service[1] # Download speed
 
         fig, ax = plt.subplots(nrows=1, ncols=1)  # create figure & 1 axis
         fig.set_size_inches(20, 10.0, forward=True)
 
+        plt.title(customerName + ', ' + region + ', vlan: ' + vlan + ', Package: ' + package)
+
         plt.xlabel(xLABEL)
         plt.ylabel(yLABEL)
 
-        plt.ylim(0.0, 100.0)
+        plt.ylim(0.0, serviceDwnSpd) # Set minimum and maximum numbers displayed on chart
 
-        # ax.plot(timeList, bpsList, marker='o', markevery=9)
+        #ax.plot(timeList, bpsList, marker='o', markevery=5)
         ax.plot(timeList, bpsList)
 
         locs, labels = plt.xticks()
@@ -89,30 +50,13 @@ class graphingManager():
         plt.xticks(rotation=50)
         plt.xticks(labelList)
 
-
-        # plt.show()
         fig.savefig(GRAPH_FILENAME)  # save the figure to file
 
         plt.close(fig)  # close the figure
 
 
 
-    def calculateBPS(self, count, usageDiff, timeDiff):
-        bpsList = [] # Put our bits per second in list
-
-        for x in range(0, count):
-            dataSample = usageDiff[x] * 8
-            #print (dataSample)
-            timePeriod = timeDiff[x]
-            bitsPerSec = (dataSample / timePeriod)  / 1000000
-
-            bpsList.append(bitsPerSec)
-
-        return bpsList
-
-
-
-    # Removes extraneous labels from our X axis
+    # Removes extraneous labels from our X axis ( This is just for visual display on the graph )
     def removeExtraneous(self, theList):
         length = len(theList)
 
