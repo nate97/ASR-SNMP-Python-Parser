@@ -31,6 +31,7 @@ SEARONT = '--ont'
 SEARID = '--id'
 SEARINDEX = '--index'
 
+PERCENTILETOCALCULATE = 95
 
 
 # This script will allow you to search through all of the historical data collected on customers bandwidth usage
@@ -90,6 +91,7 @@ class searchManager(graphingManager):
 
         if lineArray == []:
             print ("Nothing found.")
+            self.tempFileCleanup()
             return
 
         # Vars
@@ -137,13 +139,13 @@ class searchManager(graphingManager):
 
         customerList.append(octetListTotal) # Append the total octet list to the customer list
 
-        self.other(customerList)
+        self.extraData(customerList)
 
-        self.tempFileCleanup()
+        self.tempFileCleanup() # Remove temp files
 
-        
 
-    def other(self, customerList):
+
+    def extraData(self, customerList):
 
         graphList, bpsList, timeList = self.graphDataFormatter(customerList)
 
@@ -154,9 +156,23 @@ class searchManager(graphingManager):
         #customerList.append(bpsList)
         #customerList.append(timeList)
 
-        print (customerList)
-        self.exportCustomer(customerList, bpsList, timeList)
+        #self.exportCustomer(customerList, bpsList, timeList)
+
+        ourPercentile = self.calculatePercentile(bpsList)
+
         self.graphManager(graphList)
+
+
+
+
+    def calculatePercentile(self, bpsList):
+
+        bpsArray = np.array(bpsList)
+        thePercentile = np.percentile(bpsArray, PERCENTILETOCALCULATE)
+
+        return thePercentile
+
+
 
 
 

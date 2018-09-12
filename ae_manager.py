@@ -11,7 +11,7 @@ HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
 
 # Folder locations #
 MANUALFOLDER = 'CSV_Sources/' # Location of static data CSV files (Must be enerated with provided CSV tools)
-STATICDATACSV = 'AE.CSV'
+STATICDATACSV = 'AE.csv'
 
 EXPORTFOLDER = 'Customer_Database/' # CSV export folder, this is where we export our completed CSV files to
 
@@ -47,6 +47,10 @@ class AEManager():
                 service = (row[1]) # Service type
                 outTag = (row[2]) # Out tag
                 inTag = (row[3]) # In tag
+
+                if len(inTag) == 3: # Fix inTag by padding it with extra zero when neccessary
+                    inTag = '0' + str(inTag)
+
                 ID = (row[4]) # ID
                 descr = (row[5]) # Description
                 ont = (row[6]) # ONT

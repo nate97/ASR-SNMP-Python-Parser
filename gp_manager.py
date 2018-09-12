@@ -11,7 +11,7 @@ HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
 
 # Folder locations #
 MANUALFOLDER = 'CSV_Sources/' # Location of static data CSV files (Must be enerated with provided CSV tools)
-STATICDATACSV = 'GPON.CSV'
+STATICDATACSV = 'GPON.csv'
 
 EXPORTFOLDER = 'Customer_Database/' # CSV export folder, this is where we export our completed CSV files to
 
