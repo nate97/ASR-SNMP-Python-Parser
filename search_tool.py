@@ -1,25 +1,28 @@
+import matplotlib
+matplotlib.use('Agg')
+
 import subprocess
 import argparse
 import datetime
-import os
-import csv
+import bitmath
 import yaml
+import csv
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from graphing import graphingManager
-import bitmath
 
 ### GLOBALS ###
 
-# Config file locations #
-SERVICECONFIG = 'config/SERVICES.yaml'
-
-# Directorys and file extensions #
-GPONDIRECTORY = 'CUSTOMER_DATA_CSV/'
-CSVEXTENS = '.csv'
+# Directorys #
+DATABASEFOLDER = 'Customer_Database/'
 TEMPFILE = 'temp.txt'
+
+# Config file locations #
+CONFIGFOLDER = 'config/'
+SERVICECONFIG = 'services.yaml'
 
 # SEARCH ARGS #
 SEARNAME = '--name'
@@ -37,7 +40,7 @@ class searchManager(graphingManager):
         print ("Grep searcher...")
 
         # Service type dictionary
-        self.SERVICES = self.openYAML(SERVICECONFIG)  # Reads YAML config file for available packages
+        self.SERVICES = self.openYAML(CONFIGFOLDER + SERVICECONFIG)  # Reads YAML config file for available packages
 
         self.argsManager()
 
@@ -73,7 +76,8 @@ class searchManager(graphingManager):
 
 
     def searchCustomers(self, name):
-        self.grepCommand(name)
+        command = "fgrep -h '%s' %s* > %s" % (name, DATABASEFOLDER, TEMPFILE) # Searches through all saved customer date using grep, and exports it to a temp file which is used later
+        self.externalProcess(command) # Run the command
         self.grepParser()
 
 
@@ -127,9 +131,6 @@ class searchManager(graphingManager):
                 octetListSingle.append(n[4])  # Out octet
                 octetListSingle.append(n[5])  # Timestamp
 
-                #dTime = datetime.datetime.fromtimestamp(float(n[5])).strftime('%c')
-                #octetListSingle.append(dTime)  # Timestamp
-
                 octetListTotal.append(octetListSingle) # Append an octet single, to the octet total list
 
             self.nameCollision(cIndex, n[0]) # IF WE HAVE A REPEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -138,7 +139,9 @@ class searchManager(graphingManager):
 
         self.other(customerList)
 
+        self.tempFileCleanup()
 
+        
 
     def other(self, customerList):
 
@@ -172,7 +175,6 @@ class searchManager(graphingManager):
                 tmp.append(t)
             print (tmp)
 
-
             writeCSV.writerow(tmp)
 
 
@@ -182,40 +184,6 @@ class searchManager(graphingManager):
             print ("This customer has the same value as another, search using different criteria.")
             print ("Index value of customer A: " + customerIndex)
             print ("Index value of customer B: " + staticIndex)
-
-
-
-    def octetToMb(self, octet):
-        octetInt = int(octet)
-        usageByte = bitmath.Byte(octetInt)
-        usageMb = int(usageByte.to_MiB())
-
-        return usageMb
-
-
-
-    # Searches through all saved customer date using grep, and exports it to a temp file which is used later
-    def grepCommand(self, name):
-        command = "fgrep -h '%s' CUSTOMER_DATA_CSV/* > %s" % (name, TEMPFILE)
-        subprocess.call(command, shell=True)
-
-
-
-    def serviceToMaxUpDwn(self, serviceType):
-        maxUpDwn = self.SERVICES[serviceType] # Finds service's up and down speeds
-
-        return maxUpDwn
-
-
-
-    # Opens a yaml file and returns data stream
-    def openYAML(self, filename):
-        with open(filename, 'r') as stream:
-            try:
-                yamlDataFile = yaml.load(stream)
-                return yamlDataFile
-            except:
-                    print (exc)
 
 
 
@@ -283,6 +251,46 @@ class searchManager(graphingManager):
         return bpsList
 
 
+        
+    def octetToMb(self, octet):
+        octetInt = int(octet)
+        usageByte = bitmath.Byte(octetInt)
+        usageMb = int(usageByte.to_MiB())
+
+        return usageMb
+
+
+        
+    # Runs external bash commands
+    def externalProcess(self, command):
+        subprocess.call(command, shell=True)
+        
+        
+     
+    # Service to max download speeds list
+    def serviceToMaxUpDwn(self, serviceType):
+        maxUpDwn = self.SERVICES[serviceType] # Finds service's up and down speeds
+
+        return maxUpDwn
+
+
+
+    # Opens a yaml file and returns data stream
+    def openYAML(self, filename):
+        with open(filename, 'r') as stream:
+            try:
+                yamlDataFile = yaml.load(stream)
+                return yamlDataFile
+            except:
+                    print (exc)
+        
+        
+        
+    def tempFileCleanup(self):
+        # Delete no longer necessary temp files
+        self.externalProcess("rm " + TEMPFILE)
+    
+    
 
 searchManager()
 

@@ -5,68 +5,59 @@ import os
 import csv
 import argparse
 import os.path
+import yaml
 
 ### GLOBALS ###
 
 #### Variables for header names ####
 
-REGION = " REGION "
-NETWORK = " NETWORK "
-INTF = " INTF "
-ADMIN = " ADMIN "
-SUBSCRID = " SUBSCR-ID "
-DESCR = " DESCR "
-ONT = " ONT "
-ID = " ID "
-OUTTAG = " OUT-TAG "
-INTAG = " IN-TAG "
-TAGACTION = " TAG-ACTION "
-BWPROF = " BW-PROF "
-MCASTPROF = " MCAST-PROF "
+REGION = ' REGION '
+NETWORK = ' NETWORK '
+INTF = ' INTF '
+ADMIN = ' ADMIN '
+SUBSCRID = ' SUBSCR-ID '
+DESCR = ' DESCR '
+ONT = ' ONT '
+ID = ' ID '
+OUTTAG = ' OUT-TAG '
+INTAG = ' IN-TAG '
+TAGACTION = ' TAG-ACTION '
+BWPROF = ' BW-PROF '
+MCASTPROF = ' MCAST-PROF '
 
-AEONTID = " AEONTID "
-REGID = " REG-ID "
-IPADDR = " IPADDRESS "
-MACADDR = " MACADDRESS "
+AEONTID = ' AEONTID '
+REGID = ' REG-ID '
+IPADDR = ' IPADDRESS '
+MACADDR = ' MACADDRESS '
 
 # File paths #
-FIXEDPATH = "combine_AE/"
-
-# HEADER #
-HEADER = ""
+CONFIGFOLDER = 'config/'
+REGIONCONFIG = 'regions.yaml'
+FIXEDPATH = 'ActiveE/'
 
 # FILE NAMES #
-TEMPFILENAME = "AE_TMP.csv"
-SORTEDFILENAME = "AE_SORTED.csv"
-EXPORTFILENAME = "AE.csv"
-FILE1 = "AE_ONT.csv"
-FILE2 = "AE_ONT_DATAVIDEO.csv"
+TEMPFILENAME = 'AE_TMP.csv'
+SORTEDFILENAME = 'AE_SORTED.csv'
+EXPORTFILENAME = 'AE.csv'
+FILE1 = 'AE_ONT.csv'
+FILE2 = 'AE_ONT_DATAVIDEO.csv'
 
-REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
-    "Leamington": "705",
-    "Cave In Rock": "805",
-    "Elizabethtown": "905",
-    "Rosiclare": "1005",
-    "Golconda": "1105",
-    "Renshaw": "1205",
-    "Simpson": "1305",
-    "Eddyville": "1405",
-    "Hicks": "1505",
-    "Equality": "1605",
-    "Anna": "1705",
-    "Vienna": "1805" }
 
+    
 class aeCreator():
 
     def __init__(self):
         print ("CMS AE file combiner")
+
+        # Region dictionary 
+        self.REGIONS = self.openYAML(CONFIGFOLDER + REGIONCONFIG)  # Reads YAML config file for available regions
 
         self.userInput()
 
 
 
     def userInput(self):
-        print ("Enter name of your csv files, located in directory combine_AE/")
+        print ("Enter name of your csv files, located in directory " + FIXEDPATH)
         self.file1 = input("(DEFAULT: AE_ONT.csv) AE file: ")
         self.file2 = input("(DEFAULT: AE_ONT_DATAVIDEO.csv) Data file: ")
 
@@ -169,7 +160,7 @@ class aeCreator():
 
 
                 # Special CASE
-                realOutterTag = REGIONDICT[regionData]
+                realOutterTag = self.REGIONS[regionData]
 
 
                 # IF we have a collision, continue
@@ -255,7 +246,18 @@ class aeCreator():
     def externalProcess(self, command):
         subprocess.call(command, shell=True)
 
+        
 
+    # Opens a yaml file and returns data stream
+    def openYAML(self, filename):
+        with open(filename, 'r') as stream:
+            try:
+                yamlDataFile = yaml.load(stream)
+                return yamlDataFile
+            except:
+                    print (exc)
+        
+        
 
 aeCreator()
 

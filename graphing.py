@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 
-
-
 # GLOBALS #
 GRAPH_FILENAME = "graph_00.png"
 xLABEL = "Date/Time"
 yLABEL = "Bandwidth in MBps"
+
 
 
 class graphingManager():

@@ -10,44 +10,44 @@ import os.path
 
 #### Variables for header names ####
 
-REGION = " REGION "
-NETWORK = " NETWORK "
-INTF = " INTF "
-ADMIN = " ADMIN "
-SUBSCRID = " SUBSCR-ID "
-DESCR = " DESCR "
-ONT = " ONT "
-ID = " ID "
-OUTTAG = " OUT-TAG "
-INTAG = " IN-TAG "
-TAGACTION = " TAG-ACTION "
-BWPROF = " BW-PROF "
-MCASTPROF = " MCAST-PROF "
+REGION = ' REGION '
+NETWORK = ' NETWORK '
+INTF = ' INTF '
+ADMIN = ' ADMIN '
+SUBSCRID = ' SUBSCR-ID '
+DESCR = ' DESCR '
+ONT = ' ONT '
+ID = ' ID '
+OUTTAG = ' OUT-TAG '
+INTAG = ' IN-TAG '
+TAGACTION = ' TAG-ACTION '
+BWPROF = ' BW-PROF '
+MCASTPROF = ' MCAST-PROF '
 
 # File paths #
-FIXEDPATH = "combine_gpon/"
-
-# HEADER #
-HEADER = ""
+CONFIGFOLDER = 'config/'
+FIXEDPATH = 'GPon/'
 
 # FILE NAMES #
-TEMPFILENAME = "GPON_TMP.csv"
-SORTEDFILENAME = "GPON_SORTED.csv"
-EXPORTFILENAME = "GPON.csv"
-FILE1 = "gpon_ont_ge.csv"
-FILE2 = "gpon_data.csv"
+TEMPFILENAME = 'GPON_TMP.csv'
+SORTEDFILENAME = 'GPON_SORTED.csv'
+EXPORTFILENAME = 'GPON.csv'
+FILE1 = 'gpon_ont_ge.csv'
+FILE2 = 'gpon_data.csv'
+
+
 
 class gponCreator():
 
     def __init__(self):
-        print ("CMS GPON file combiner")
+        print ('CMS GPON file combiner')
 
         self.userInput()
 
 
 
     def userInput(self):
-        print ("Enter name of your csv files, located in directory combine_gpon/")
+        print ("Enter name of your csv files, located in directory " + FIXEDPATH)
         self.file1 = input("(DEFAULT: gpon_ont_ge.csv) GE file: ")
         self.file2 = input("(DEFAULT: gpon_data.csv) Data file: ")
 

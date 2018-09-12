@@ -25,11 +25,14 @@ INPHRASE = ' IN'
 OUTPHRASE = ' OUT'
 TIMEPHRASE = ' TIMESTAMP'
 
+
+
 class OIDParser():
 
     def __init__(self):
         pass
 
+        
 
     # KEEP OID LISTS IN HERE, [NOT] GLOBAL. This method is called in a for loop in main.py
     def OIDManager(self):
@@ -51,6 +54,7 @@ class OIDParser():
         self.pollASR()
 
 
+        
     # Polls ASR once, gets latest port-channel, octet IN OUT data, VLAN tag, and timestamps from all OIDS
     def pollASR(self):
         print ("POLLING ASR")
@@ -86,8 +90,8 @@ class OIDParser():
         return RawOIDOutput
 
 
+        
     def parseOIDs(self, oids, type):    # Parse ALL of the different types of oid lists ( Called AFTER getOIDs, parses string )
-
         # Remove newlines and special characters, appends each line to a list
         oidsList = oids.split("\\n")
 
@@ -99,6 +103,7 @@ class OIDParser():
             self.oidTypeSelector(type, singleOid) # Selects which parser to move onto next
 
 
+            
     def oidTypeSelector(self, type, singleOid):
         if type == TYPEDESCR:
             self.parseDescrOIDS(singleOid)
@@ -107,6 +112,7 @@ class OIDParser():
         else:
             return # Invalid type! SKIP
 
+            
 
     # Parses line of an individual device OID for Description VLAN
     def parseDescrOIDS(self, singleOid):    # Parses description OID type
@@ -149,6 +155,7 @@ class OIDParser():
         self.descrDict[oidIndex] = (descrList) # Append key and list  to global descrDict
 
 
+        
     # Parses line of individual device for OID octets ( Argument should specify wether octet are IN or OUT )
     def parseOctetOIDS(self, type, singleOid):    # Parses IN or OUT octet OID type
         oid = singleOid.split(".")
@@ -173,6 +180,7 @@ class OIDParser():
             self.octetOutDict[oidIndex] = (octet)
 
 
+            
     def CombINOUTOcts(self):
         combinedOcts = []
 
@@ -194,6 +202,7 @@ class OIDParser():
 
             self.octetDict[oidIndex] = (singleOid)
 
+            
 
     def combOctetsDescr(self):
         print ("MERGING DATA & OIDS")

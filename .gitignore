@@ -110,14 +110,9 @@ credentials.yaml
 temp.txt
 
 # Exported customer data CSVs
-CUSTOMER_DATA_CSV
+Customer_Database
 
-# Reference CSV files 
-MANUAL_CSV/
 
-# Folder for combining gpon CMS csv files
-combine_gpon/
-combine_AE/
 
 # PyCharm files
 .idea/

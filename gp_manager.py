@@ -1,7 +1,6 @@
 import time
 import csv
 
-
 ### GLOBALS ###
 
 # PHRASES TO APPEND TO DATA ( For readability ) #
@@ -11,24 +10,29 @@ HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
               "ONT", "IP Address", "Mac address"]  # Needs to be placed in globals
 
 # Folder locations #
-MANUALFOLDER = 'MANUAL_CSV/' # Where we place the curated CSV files at
-EXPORTFOLDER = 'CUSTOMER_DATA_CSV/' # CSV export folder, this is where we export our completed CSV files to
+MANUALFOLDER = 'CSV_Sources/' # Location of static data CSV files (Must be enerated with provided CSV tools)
+STATICDATACSV = 'GPON.CSV'
+
+EXPORTFOLDER = 'Customer_Database/' # CSV export folder, this is where we export our completed CSV files to
 
 # Exported file names #
 GPONFILENAME = '%sgp-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
+
+
 
 class GPONManager():
 
     def __init__(self):
         pass
 
+        
 
     # Read GPON csv, export combined data
     def readGPONcsv(self, customerDict):
 
         self.customerList = []
 
-        with open(MANUALFOLDER + 'GPON.csv') as csvGPON:
+        with open(MANUALFOLDER + STATICDATACSV) as csvGPON:
             readCSV = csv.reader(csvGPON, delimiter=',')
 
             for row in readCSV:
@@ -77,7 +81,7 @@ class GPONManager():
     # Exports combined ASR GPON CSV files
     def exportGPONCustomerData(self):
         print ("EXPORTING GPON DATA!")
-
+        # Get current time to append to file name.
         time = self.createFileTimestamp() # Get current time to append to file name.
 
         openFileStr = GPONFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
