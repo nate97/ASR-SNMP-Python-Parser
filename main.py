@@ -6,7 +6,6 @@ import os
 import yaml
 
 from oid_parser import OIDParser
-from gp_manager import GPONManager
 from ae_manager import AEManager
 
 ### GLOBALS ###
@@ -23,7 +22,7 @@ DELAY = 300 # In seconds
 
 
 
-class ASRDataExtractor(OIDParser, GPONManager, AEManager):
+class ASRDataExtractor(OIDParser, AEManager):
 
     def __init__(self):
         print ("Application ran at: " + self.createFileTimestamp())
@@ -34,16 +33,9 @@ class ASRDataExtractor(OIDParser, GPONManager, AEManager):
 
         
     def mainManager(self):
-        while True: # This while statement should be removed when ready to have this script run as a CRON JOB
-            self.OIDManager()  # Located in class OIDParser
-            self.readGPONcsv(self.customerDict)
-            self.exportGPONCustomerData()
-
-            self.OIDManager()  # Located in class OIDParser
-            self.readAEcsv(self.customerDict)
-            self.exportAECustomerData()
-
-            time.sleep(DELAY)
+        self.OIDManager()  # Located in class OIDParser
+        self.readUsersCsv(self.customerDict)
+        self.exportCustomerData()
 
 
             

@@ -182,12 +182,12 @@ class percentileTool():
 
 
     def exportCustomers(self):
-        with open('percentiles.csv', 'r') as csvfile:
+        with open('percentiles.csv', 'w') as csvfile:
             targetReader = csv.writer(csvfile, delimiter=',')
 
-        for customerL in self.allCustomers:
-            targetReader.writerow(customerL)
-        #csvfile.close()
+            for customerL in self.allCustomers:
+                targetReader.writerow(customerL)
+        csvfile.close()
 
 
 

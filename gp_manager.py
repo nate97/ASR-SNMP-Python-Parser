@@ -78,6 +78,7 @@ class GPONManager():
         csvGPON.close()
 
 
+
     # Exports combined ASR GPON CSV files
     def exportGPONCustomerData(self):
         print ("EXPORTING GPON DATA!")
@@ -102,7 +103,6 @@ class GPONManager():
                 inOct = customer[3]
                 outOct = customer[4]
                 timeStamp = customer[5]
-
                 region = customer[6]
                 speedPackage = customer[7]
                 ID = customer[8]
@@ -115,7 +115,6 @@ class GPONManager():
                 tempList.append(inOct)
                 tempList.append(outOct)
                 tempList.append(timeStamp)
-
                 tempList.append(region)
                 tempList.append(speedPackage)
                 tempList.append(ID)
@@ -128,4 +127,5 @@ class GPONManager():
 
         # Close our merged ASR, GPON CSV file
         csvGPONcustomer.close()
+
 

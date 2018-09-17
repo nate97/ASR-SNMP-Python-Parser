@@ -11,12 +11,12 @@ HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
 
 # Folder locations #
 MANUALFOLDER = 'CSV_Sources/' # Location of static data CSV files (Must be enerated with provided CSV tools)
-STATICDATACSV = 'AE.csv'
+STATICDATACSV = 'USERS.csv'
 
-EXPORTFOLDER = 'Customer_Database/' # CSV export folder, this is where we export our completed CSV files to
+EXPORTFOLDER = 'Customer_Database_1/' # CSV export folder, this is where we export our completed CSV files to
 
 # Exported file names #
-AEFILENAME = '%sae-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
+AEFILENAME = '%s-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
 
 
 
@@ -28,19 +28,13 @@ class AEManager():
 
         
     # Read AE csv, export combined data
-    def readAEcsv(self, customerDict):
-
+    def readUsersCsv(self, customerDict):
         self.customerList = []
 
-        with open(MANUALFOLDER + STATICDATACSV) as csvAE:
-            readCSV = csv.reader(csvAE, delimiter=',')
+        with open(MANUALFOLDER + STATICDATACSV) as csvUsersFile:
+            readCSV = csv.reader(csvUsersFile, delimiter=',')
 
             for row in readCSV:
-                # FILTER #
-                # Bypasses any errors or useless data in CSV file #
-                if row[3] == ' ': # If column 3 has no description skip it
-                    continue
-
                 csvList = [] # List to append all CSV data
 
                 region = (row[0]) # region
@@ -50,6 +44,7 @@ class AEManager():
 
                 if len(inTag) == 3: # Fix inTag by padding it with extra zero when neccessary
                     inTag = '0' + str(inTag)
+                    print ("intag???")
 
                 ID = (row[4]) # ID
                 descr = (row[5]) # Description
@@ -57,15 +52,7 @@ class AEManager():
                 ipAddr = (row[7]) # Ip address
                 macAddr = (row[8]) # Mac address
 
-                aeVlan = (outTag + inTag)
-
-                # UNUSED!!!
-                """#cTag = self.calculateCTag(row[9]) # row 9 is linked-port
-                #sTag = self.calculateSTag(row[27]) # Row 27 is the region
-                #if sTag == None: # This skips appending the customer to our list. Something is wrong with the data.
-                #    continue
-
-                #aeVlan = (sTag + cTag)"""
+                customerVlan = (outTag + inTag)
 
                 for x in customerDict.values():
                     index = x[0][0]
@@ -76,7 +63,7 @@ class AEManager():
                     outOct = x[1][1]
                     timeStamp = x[1][2]
 
-                    if aeVlan == asrVlan: # If the VLANS match, the data for this line IS related and can be appended
+                    if customerVlan == asrVlan: # If the VLANS match, the data for this line IS related and can be appended
                         # Append CSV data to list #
                         csvList.append(index)
                         csvList.append(portc)
@@ -97,21 +84,21 @@ class AEManager():
                         self.customerList.append(csvList)
                         
         # Close the AE csv file
-        csvAE.close()
+        csvUsersFile.close()
 
 
 
     # Exports combined ASR AE CSV files
-    def exportAECustomerData(self):
-        print ("EXPORTING ACTIVE-E DATA!")
+    def exportCustomerData(self):
+        print ("EXPORTING DATA!")
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 
         openFileStr = AEFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
 
         # Create a CSV file to put our merged data from AE and ASR in
-        with open(openFileStr, 'w') as csvAEcustomer:
-            writeCSV = csv.writer(csvAEcustomer)
+        with open(openFileStr, 'w') as csvCustomer:
+            writeCSV = csv.writer(csvCustomer)
 
             # This is just for human readability, adds headers to the CSV file
             writeCSV.writerow(HEADERLIST) # TEMP
@@ -119,23 +106,22 @@ class AEManager():
             for customer in self.customerList:
                 tempList = []
 
-                # This is stupid, should just do this all in one go and comment what pieces are what.
+                for x in customer:
+                    print (x)
+
                 index = customer[0]
                 portc = customer[1]
                 vlan = customer[2]
                 inOct = customer[3]
                 outOct = customer[4]
                 timeStamp = customer[5]
-
                 region = customer[6]
-                service = customer[7]
-
-                descr = customer[8]
-
-                ID = customer[9]
-
-                ipAddr = customer[10]
-                macAddr = customer[11]
+                speedPackage = customer[7]
+                ID = customer[8]
+                descr = customer[9]
+                ont = customer[10]
+                ipAddr = customer[11]
+                #macAddr = customer[12]
 
                 tempList.append(index)
                 tempList.append(portc)
@@ -143,63 +129,17 @@ class AEManager():
                 tempList.append(inOct)
                 tempList.append(outOct)
                 tempList.append(timeStamp)
-
                 tempList.append(region)
-                tempList.append(service)
+                tempList.append(speedPackage)
                 tempList.append(ID)
 
                 tempList.append(descr)
-                tempList.append(" ") # ONT ( not used on AE )
-                tempList.append(ipAddr)
-                tempList.append(macAddr)
+                tempList.append(ont)
 
-                writeCSV.writerow(tempList)
+                tempList.append(ipAddr) # IP Address
+                #tempList.append(macAddr) # Mac Address
 
-        # Close our merged ASR, GPON CSV file
-        csvAEcustomer.close()
-
-
-       
-###### UNUSED!!!!!!! ######
-# This is for calculating the cTag based off of the customers region for Active E #
-"""REGIONDICT = {  ########## ADD NEW REGIONS IN THIS DICTIONARY!!! ###########
-    "Leamington": "705",
-    "Cave In Rock": "805",
-    "Elizabethtown": "905",
-    "Rosiclare": "1005",
-    "Golconda": "1105",
-    "Renshaw": "1205",
-    "Simpson": "1305",
-    "Eddyville": "1405",
-    "Hicks": "1505",
-    "Equality": "1605",
-    "Anna": "1705",
-    "Vienna": "1805" }
-
-
-
-# Calculates our Ctag with formula from the linkedPort data for customer, used for vlan
-def calculateCTag(self, linkedPort):
-    lPort = linkedPort.split("-")
-
-    cTag = str(int(lPort[0]) * 100 + (int(lPort[1])-1)*24 + int(lPort[2])) # Formula for caluclating cTag
-
-    if len(cTag) <= 3: # Appends a "0" if the cTag is too short ( Is this correct??? )
-        cTag = "0" + cTag
-
-    return cTag
-
-
-
-# Calculates Stag based off of region customer is located in, used for vlan
-def calculateSTag(self, region):
-    if region in REGIONDICT: # Region is valid and in our GLOBAL region dictionary
-        regionCode = REGIONDICT[region]
-        #print (regionCode)
-    else: # Region was not in dictionary, throw an error to user
-        #print ("Invalid region, add region into regionDict if valid. Region is: '" + region + "' otherwise, ignore.")
-        regionCode = None
-
-    return regionCode"""
+        # Close our merged ASR, CSV file
+        csvCustomer.close()
 
 

@@ -199,7 +199,56 @@ class searchManager(graphingManager):
             print ("Index value of customer A: " + customerIndex)
             print ("Index value of customer B: " + staticIndex)
 
-    serviceToMaxUpDwn
+
+
+    # Formats our data for exporting it to a visual graph.
+    def graphDataFormatter(self, customerList):
+        graphFormatList = []
+        timeSeconds = []
+        outUsage = []
+        timeList = []
+        firstSample = True
+
+        serviceType = customerList[4]
+        customerName = customerList[6]
+        region = customerList[3]
+        vlan = customerList[2]
+        package = customerList[4]
+
+        serviceUpDown = self.serviceToMaxUpDwn(serviceType)
+
+        for uu in customerList[10]:
+            outOctet = (int(uu[1]))
+            time = (float(uu[2]))
+
+            outUsage.append(outOctet)
+
+            if not firstSample:
+                # Visual data, this is what we draw on the png file for the time scale
+                timeStr = datetime.datetime.fromtimestamp(time).strftime('%m/%d %H:%M')
+                timeList.append(timeStr)
+
+            timeSeconds.append(time) # Seconds
+            firstSample = False
+
+        outUsageDiff = [outUsage[i + 1] - outUsage[i] for i in range(len(outUsage) - 1)]
+        timeDiff = [timeSeconds[i + 1] - timeSeconds[i] for i in range(len(timeSeconds) - 1)]
+
+        count = len(outUsageDiff)
+        bpsList = self.calculateBPS(count, outUsageDiff, timeDiff)  # Calls function
+        peakDownload = max(bpsList)
+
+        # This is all for the visual side of the graph
+        graphFormatList.append(timeList)
+        graphFormatList.append(bpsList)
+        graphFormatList.append(serviceUpDown)
+        graphFormatList.append(customerName)
+        graphFormatList.append(region)
+        graphFormatList.append(vlan)
+        graphFormatList.append(package)
+
+        return graphFormatList, bpsList, timeDiff # Reason we return multiple variables is that we will use bpsList and timeDiff when we export the specified customers' CSV
+
 
 
     def calculateBPS(self, count, usageDiff, timeDiff):
