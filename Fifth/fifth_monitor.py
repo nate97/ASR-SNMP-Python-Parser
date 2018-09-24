@@ -141,11 +141,10 @@ class percentileTool():
 
                 customerList.append(n[6])  # Region
                 customerList.append(n[7])  # Service package
-                customerList.append(n[8])  # ID
-                customerList.append(n[9])  # Description
-                customerList.append(n[10])  # ONT
-                customerList.append(n[11])  # Ip Address
-                customerList.append(n[12])  # Mac Address
+                customerList.append(n[8])  # Description
+                customerList.append(n[9])  # ONT
+                customerList.append(n[10])  # Ip Address
+                customerList.append(n[11])  # Mac Address
 
             # Make sure we only retrive the data from a single customer
             if n[0] == cIndex:  # This statement is to make sure we only put the octet data of a single customer in the output.
@@ -169,7 +168,7 @@ class percentileTool():
 
     def extraData(self, customerList):
         graphList, bpsList, timeList = self.graphDataFormatter(customerList)
-        customerList.pop(10)
+        customerList.pop(9)
 
         maxPeak = max(bpsList)
         customerList.append(maxPeak)
@@ -207,7 +206,7 @@ class percentileTool():
 
         serviceUpDown = self.serviceToMaxUpDwn(serviceType)
 
-        for uu in customerList[10]:
+        for uu in customerList[9]:
             outOctet = (int(uu[1]))
             time = (float(uu[2]))
 

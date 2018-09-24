@@ -6,21 +6,21 @@ import csv
 # PHRASES TO APPEND TO DATA ( For readability ) #
 HEADERLIST = ["Index", "Portchannel", "Vlan", "In octet",
               "Out octet", "Timestamp", "Region",
-              "Speed Package","ID", "Description",
+              "Speed Package", "Description",
               "ONT", "IP Address", "Mac address"]  # Needs to be placed in globals
 
 # Folder locations #
 MANUALFOLDER = 'CSV_Sources/' # Location of static data CSV files (Must be enerated with provided CSV tools)
 STATICDATACSV = 'USERS.csv'
 
-EXPORTFOLDER = 'Customer_Database_1/' # CSV export folder, this is where we export our completed CSV files to
+EXPORTFOLDER = 'Customer_Database/' # CSV export folder, this is where we export our completed CSV files to
 
 # Exported file names #
-AEFILENAME = '%s-customer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
+EXPORTFILENAME = '%scustomer-data-%s.csv' # filename that will be used for exported CSV files ( '%s' denotes where the data will be shoved into string, e.g., CUSTOMER_DATA_CSV, 2018-01-01-100000 )
 
 
 
-class AEManager():
+class CSVManager():
 
     def __init__(self):
         pass
@@ -44,7 +44,7 @@ class AEManager():
 
                 if len(inTag) == 3: # Fix inTag by padding it with extra zero when neccessary
                     inTag = '0' + str(inTag)
-                    print ("intag???")
+                    #print ("intag???")
 
                 ID = (row[4]) # ID
                 descr = (row[5]) # Description
@@ -94,7 +94,7 @@ class AEManager():
         # Get current time to append to file name.
         time = self.createFileTimestamp()
 
-        openFileStr = AEFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
+        openFileStr = EXPORTFILENAME % (EXPORTFOLDER, time) # Merges export folder/name and timestamp into the string used for creating a file in a specified path
 
         # Create a CSV file to put our merged data from AE and ASR in
         with open(openFileStr, 'w') as csvCustomer:
@@ -106,9 +106,6 @@ class AEManager():
             for customer in self.customerList:
                 tempList = []
 
-                for x in customer:
-                    print (x)
-
                 index = customer[0]
                 portc = customer[1]
                 vlan = customer[2]
@@ -117,11 +114,10 @@ class AEManager():
                 timeStamp = customer[5]
                 region = customer[6]
                 speedPackage = customer[7]
-                ID = customer[8]
-                descr = customer[9]
-                ont = customer[10]
-                ipAddr = customer[11]
-                #macAddr = customer[12]
+                descr = customer[8]
+                ont = customer[9]
+                ipAddr = customer[10]
+                macAddr = customer[11]
 
                 tempList.append(index)
                 tempList.append(portc)
@@ -131,13 +127,12 @@ class AEManager():
                 tempList.append(timeStamp)
                 tempList.append(region)
                 tempList.append(speedPackage)
-                tempList.append(ID)
-
                 tempList.append(descr)
                 tempList.append(ont)
-
                 tempList.append(ipAddr) # IP Address
-                #tempList.append(macAddr) # Mac Address
+                tempList.append(macAddr) # Mac Address
+
+                writeCSV.writerow(tempList)
 
         # Close our merged ASR, CSV file
         csvCustomer.close()

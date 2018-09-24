@@ -6,7 +6,7 @@ import os
 import yaml
 
 from oid_parser import OIDParser
-from ae_manager import AEManager
+from csv_manager import CSVManager
 
 ### GLOBALS ###
 
@@ -22,7 +22,7 @@ DELAY = 300 # In seconds
 
 
 
-class ASRDataExtractor(OIDParser, AEManager):
+class ASRDataExtractor(OIDParser, CSVManager):
 
     def __init__(self):
         print ("Application ran at: " + self.createFileTimestamp())
