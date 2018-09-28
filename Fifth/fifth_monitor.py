@@ -150,12 +150,12 @@ class percentileTool():
             if n[0] == cIndex:  # This statement is to make sure we only put the octet data of a single customer in the output.
                 # Octet data #
                 octetListSingle = []  # List for AN individual in and out octet w/ timestamp
-
                 octetListSingle.append(n[3])  # In octet
                 octetListSingle.append(n[4])  # Out octet
                 octetListSingle.append(n[5])  # Timestamp
 
                 octetListTotal.append(octetListSingle)  # Append an octet single, to the octet total list
+
 
             self.nameCollision(cIndex, n[0])  # IF WE HAVE A REPEAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -168,6 +168,22 @@ class percentileTool():
 
     def extraData(self, customerList):
         graphList, bpsList, timeList = self.graphDataFormatter(customerList)
+
+
+
+        octetLists = customerList[9]
+        lenOctetList = len(octetLists)
+        latestSample = octetLists[lenOctetList - 1]
+
+        ourTime = (float(latestSample[2]))
+
+        timeStr = datetime.datetime.fromtimestamp(ourTime).strftime('%m/%d/%y %H:%M %p')
+
+        outUsage = latestSample[1]
+
+
+
+
         customerList.pop(9)
 
         maxPeak = max(bpsList)
@@ -175,6 +191,10 @@ class percentileTool():
 
         ourPercentile = self.calculatePercentile(bpsList)
         customerList.append(ourPercentile)
+
+
+        customerList.append(outUsage)
+        customerList.append(timeStr)
 
         self.allCustomers.append(customerList)
 
